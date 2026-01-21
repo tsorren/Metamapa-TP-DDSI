@@ -1,0 +1,641 @@
+/* ====== IMPORTAR SISTEMA DE COLORES ====== */
+@import url('variables.css');
+
+/* ====== BASE ====== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: var(--bg-secondary);
+    padding-top: 80px; /* Espacio para el header fijo */
+}
+
+/* Utility class */
+.hidden {
+    display: none !important;
+}
+
+/* Active state - debe tener más especificidad que hidden */
+.popup-overlay.active,
+.form-popup.active,
+.popup-overlay.active.hidden,
+.form-popup.active.hidden {
+    display: flex !important;
+}
+
+/* MAIN CONTENT */
+.main-content {
+    max-width: 900px;
+    margin: 20px auto;
+    padding: 20px;
+}
+
+/* ====== MAPA ====== */
+#map {
+    position: absolute;
+    top: 80px; /* altura del header de common.css */
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1; /* Menor que el popup (z-index: 2000) */
+    width: 100%;
+    height: calc(100vh - 80px);
+}
+
+/* ====== BOTÓN FLOTANTE AGREGAR HECHO ====== */
+.add-button {
+    position: fixed;
+    bottom: 40px;
+    right: 40px;
+    width: 60px;
+    height: 60px;
+    background-color: var(--primary-color);
+    color: var(--text-white);
+    border: none;
+    border-radius: var(--radius-full);
+    font-size: 32px;
+    cursor: pointer;
+    box-shadow: var(--shadow-lg);
+    z-index: 1000;
+    transition: var(--transition-normal);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.add-button:hover {
+    background-color: var(--primary-hover);
+    transform: scale(1.1);
+    box-shadow: var(--shadow-xl);
+}
+
+.add-button:active {
+    transform: scale(0.95);
+}
+
+/* ====== BOTÓN FLOTANTE VER MIS HECHOS ====== */
+.toggle-my-hechos-btn {
+    position: fixed;
+    bottom: 40px;
+    right: 120px;
+    width: 60px;
+    height: 60px;
+    background-color: var(--primary-dark);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    transition: all 0.3s ease;
+    display: none; /* Oculto por defecto hasta que se confirme autenticación */
+    align-items: center;
+    justify-content: center;
+}
+
+.toggle-my-hechos-btn:hover {
+    background-color: var(--primary-darker);
+    transform: scale(1.1);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+}
+
+.toggle-my-hechos-btn:active {
+    transform: scale(0.95);
+}
+
+.toggle-my-hechos-btn.active {
+    background-color: #48bb78;
+}
+
+.toggle-my-hechos-btn.active:hover {
+    background-color: #38a169;
+}
+
+/* Responsive para pantallas pequeñas */
+@media (max-width: 768px) {
+    .add-button {
+        width: 50px;
+        height: 50px;
+        font-size: 28px;
+        bottom: 30px;
+        right: 30px;
+    }
+
+    .toggle-my-hechos-btn {
+        width: 50px;
+        height: 50px;
+        bottom: 30px;
+        right: 95px;
+    }
+
+    .toggle-my-hechos-btn svg {
+        width: 20px;
+        height: 20px;
+    }
+}
+
+/* ====== POPUP OVERLAY ====== */
+.popup-overlay,
+.form-popup {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 2000;
+    justify-content: center;
+    align-items: center;
+}
+
+/* ====== POPUP CONTENT ====== */
+.popup-content-hecho,
+.form-content {
+    background: white;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    position: relative;
+}
+
+.popup-header,
+.form-header {
+    background: var(--gradient-primary);
+    color: var(--text-white);
+    padding: 24px 32px;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: var(--shadow-md);
+}
+
+.popup-header h2,
+.form-header h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+
+.close-btn {
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    color: white;
+    font-size: 28px;
+    cursor: pointer;
+    padding: 0;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.close-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: scale(1.05);
+}
+
+/* ====== ESTILOS MINIMALISTAS PARA FORMULARIO ====== */
+
+/* Resetear padding del form-content para mejor control */
+.form-content {
+    padding: 0 !important;
+    background: white;
+}
+
+/* Padding para elementos dentro del formulario (excepto header y footer) */
+.form-content > label,
+.form-content > input,
+.form-content > select,
+.form-content > textarea,
+.form-content > div:not(.form-header):not(.form-actions) {
+    margin-left: 32px;
+    margin-right: 32px;
+}
+
+/* Labels con estilo minimalista */
+.form-content > label,
+.form-content div > label {
+    display: block;
+    margin-bottom: 8px;
+    margin-top: 20px;
+    font-weight: 500;
+    color: #2c3e50;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Primer label con más espacio arriba */
+.form-content > label:first-of-type {
+    margin-top: 28px;
+}
+
+/* Inputs y campos con diseño moderno */
+.form-content input[type="text"],
+.form-content input[type="date"],
+.form-content select,
+.form-content textarea {
+    width: calc(100% - 64px);
+    padding: 12px 16px;
+    border: 2px solid #e8ecef;
+    border-radius: 8px;
+    font-size: 15px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+    transition: all 0.2s ease;
+    background: #f8f9fa;
+    color: #2c3e50;
+    margin-bottom: 4px;
+}
+
+/* Placeholder styling */
+.form-content input::placeholder,
+.form-content textarea::placeholder {
+    color: #95a5a6;
+    font-weight: 300;
+}
+
+/* Focus states con efecto moderno */
+.form-content input[type="text"]:focus,
+.form-content input[type="date"]:focus,
+.form-content select:focus,
+.form-content textarea:focus {
+    outline: none;
+    border-color: #3498db;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+    transform: translateY(-1px);
+}
+
+/* Textarea con altura adecuada */
+.form-content textarea {
+    min-height: 100px;
+    resize: vertical;
+    line-height: 1.6;
+    font-family: inherit;
+}
+
+/* Select con flecha personalizada */
+.form-content select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%232c3e50' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    padding-right: 40px;
+}
+
+/* Input file con mejor diseño */
+.form-content input[type="file"] {
+    width: calc(100% - 64px);
+    padding: 12px 16px;
+    font-size: 14px;
+    cursor: pointer;
+    background: white;
+    border: 2px dashed #e8ecef;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.form-content input[type="file"]:hover {
+    border-color: #3498db;
+    background: #f8f9fa;
+}
+
+/* Contenedores ocultos mantienen el padding */
+.form-content #contenedorArchivo,
+.form-content #contenedorTexto {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.form-content #contenedorArchivo label,
+.form-content #contenedorTexto label {
+    margin-left: 0;
+}
+
+.form-content #contenedorArchivo input,
+.form-content #contenedorArchivo textarea,
+.form-content #contenedorTexto input,
+.form-content #contenedorTexto textarea {
+    margin-left: 0;
+    margin-right: 0;
+    width: 100%;
+}
+
+/* ====== POPUP BODY (Legacy) ====== */
+.popup-body {
+    padding: 24px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #333;
+    font-size: 14px;
+}
+
+.form-group input[type="text"],
+.form-group input[type="date"],
+.form-group input[type="number"],
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: Arial, sans-serif;
+    transition: border-color 0.3s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary-color, #333);
+}
+
+.form-group textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+/* File upload area */
+.file-upload-area {
+    border: 2px dashed #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    background: #f9f9f9;
+}
+
+.file-upload-area:hover {
+    border-color: var(--primary-color, #333);
+    background: #f0f0f0;
+}
+
+.file-upload-area p {
+    margin: 10px 0 0 0;
+    color: #666;
+    font-size: 14px;
+}
+
+#fuente-file {
+    display: none;
+}
+
+.file-preview {
+    display: none;
+    margin-top: 10px;
+    padding: 10px;
+    background: #f0f0f0;
+    border-radius: 6px;
+    align-items: center;
+    gap: 10px;
+}
+
+.file-preview.active {
+    display: flex;
+}
+
+.file-details {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.file-name {
+    font-size: 14px;
+    color: #333;
+}
+
+.remove-file {
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.remove-file:hover {
+    background: #c82333;
+}
+
+/* ====== FILE INFO Y PROGRESS BAR (Minimalista) ====== */
+.file-info,
+#file-info-hecho {
+    display: none;
+    margin-top: 12px;
+    padding: 14px 16px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 2px solid #e8ecef;
+}
+
+.file-info.active,
+#file-info-hecho.active {
+    display: block;
+}
+
+#file-info-hecho .file-details {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+#file-name-hecho {
+    font-size: 14px;
+    color: #2c3e50;
+    flex: 1;
+    font-weight: 500;
+}
+
+#remove-file-hecho {
+    background: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+#remove-file-hecho:hover {
+    background: #c0392b;
+    transform: scale(1.05);
+}
+
+.progress-container {
+    width: 100%;
+    height: 6px;
+    background: #e8ecef;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+#progress-bar-hecho {
+    height: 100%;
+    background: linear-gradient(90deg, #3498db 0%, #2ecc71 100%);
+    width: 0;
+    transition: width 0.3s ease;
+    border-radius: 3px;
+}
+
+/* ====== POPUP FOOTER / FORM ACTIONS ====== */
+.popup-footer,
+.form-actions {
+    padding: 20px 32px;
+    background: #fafbfc;
+    border-radius: 0 0 12px 12px;
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    border-top: 1px solid #e8ecef;
+    margin-top: 28px;
+}
+
+/* Botones con diseño minimalista */
+.btn-confirm,
+.btn-cancel {
+    padding: 12px 28px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+    letter-spacing: 0.3px;
+}
+
+/* Botón confirmar - Azul minimalista */
+.btn-confirm {
+    background: var(--primary-color);
+    color: var(--text-white);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-confirm:hover {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-lg);
+}
+
+
+/* Botón cancelar - Gris minimalista */
+.btn-cancel {
+    background: transparent;
+    color: var(--text-muted);
+    border: 2px solid var(--border-light);
+}
+
+.btn-cancel:hover {
+    background: var(--bg-secondary);
+    border-color: var(--border-medium);
+    color: var(--text-secondary);
+}
+
+.btn-cancel:hover {
+    background: #5a6268;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .popup-content-hecho,
+    .form-content {
+        width: 95%;
+        max-height: 90vh;
+    }
+
+    .popup-header,
+    .form-header {
+        padding: 20px 20px;
+    }
+
+    .popup-header h2,
+    .form-header h2 {
+        font-size: 18px;
+    }
+
+    .close-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 24px;
+    }
+
+    /* Ajustar padding en móvil */
+    .form-content > label,
+    .form-content > input,
+    .form-content > select,
+    .form-content > textarea,
+    .form-content > div:not(.form-header):not(.form-actions) {
+        margin-left: 20px;
+        margin-right: 20px;
+    }
+
+    .form-content input[type="text"],
+    .form-content input[type="date"],
+    .form-content select,
+    .form-content textarea,
+    .form-content input[type="file"] {
+        width: calc(100% - 40px);
+        font-size: 16px; /* Evita zoom en iOS */
+    }
+
+    .popup-footer,
+    .form-actions {
+        padding: 16px 20px;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .btn-confirm,
+    .btn-cancel {
+        width: 100%;
+        padding: 14px 20px;
+    }
+}
+

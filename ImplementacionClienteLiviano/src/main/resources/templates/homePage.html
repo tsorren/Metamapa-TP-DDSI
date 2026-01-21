@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security6">
+<head>
+    <meta charset="UTF-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/logo.svg}">
+    <link rel="stylesheet" th:href="@{/css/variables.css}"/>
+    <link rel="stylesheet" th:href="@{/css/common.css}"/>
+    <link rel="stylesheet" th:href="@{/css/styleHomePage.css}"/>
+    <div th:replace="~{fragments/header :: toast-resources}"></div>
+    <title>MetaMapa</title>
+</head>
+<body>
+<!-- HEADER -->
+<div th:replace="fragments/header :: header"></div>
+
+<!-- POPUPS LOGIN/REGISTER -->
+<!--<div th:replace="~{fragments/header :: auth-popups}"></div>-->
+
+<!-- HERO con mismo look de la landing -->
+<section class="hero">
+    <br>
+    <br>
+    <br>
+    <div class="hero-buttons">
+        <!-- Botón visible para TODOS (sin login, con login, admin) -->
+        <button class="hero-btn" id="btn-navegar">Navegar hechos</button>
+
+        <!-- Botón visible solo para usuarios AUTENTICADOS (contribuyentes y admin) -->
+        <button sec:authorize="hasRole('CONTRIBUYENTE')" class="hero-btn" id="btn-cargar">
+            Cargar hechos
+        </button>
+
+        <!-- Botones visibles solo para ADMIN -->
+        <button sec:authorize="hasRole('ADMIN')" class="hero-btn" id="btn-colecciones">
+            Administrar Colecciones
+        </button>
+        <button sec:authorize="hasRole('ADMIN')" class="hero-btn" id="btn-importar" type="button">
+            Importar Hechos
+        </button>
+        <button sec:authorize="hasRole('ADMIN')" class="hero-btn" id="btn-solicitudes" >Administrar
+            Solicitudes
+        </button>
+        <button sec:authorize="hasRole('ADMIN')" class="hero-btn" id="btn-panel_de_control" >
+            Panel de Control
+        </button>
+        <button sec:authorize="hasRole('ADMIN')" class="hero-btn" id="btn-register_admin" >
+            Registrar Administrador
+        </button>
+    </div>
+</section>
+
+<div class="popup hidden" id="popup-importar" style="display:none;">
+    <div class="popup-content">
+        <div class="popup-header">
+            <span>Importar Archivos CSV</span>
+            <button class="close-popup" type="button">&times;</button>
+        </div>
+        <form class="popup-body" enctype="multipart/form-data" id="import-form" method="post"
+              th:action="@{/admin/importar}">
+            <label class="file-drop" for="import-file">
+                <img alt="Subir archivo" th:src="@{/images/upload-icon.png}"/>
+                <p>Arrastrá o seleccioná un archivo</p>
+            </label>
+            <input accept=".csv,.json" id="import-file" name="archivo" type="file"/>
+            <div class="file-info hidden" id="file-info">
+                <div class="file-details">
+                    <img alt="Archivo" class="file-icon" th:src="@{/images/file-icon.svg}"/>
+                    <span id="file-name">archivo.csv</span>
+                    <button class="remove-file" id="remove-file" type="button">&times;</button>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-bar" id="progress-bar"></div>
+                </div>
+            </div>
+            <div class="popup-footer">
+                <button class="btn-confirm" id="confirm-import" type="submit">Confirmar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    // Obtener mensajes flash de Thymeleaf
+    const mensajeExito = /*[[${mensaje}]]*/ null;
+    const mensajeError = /*[[${error}]]*/ null;
+    /*]]>*/
+</script>
+
+<script>
+    /* // Función para verificar el rol del usuario
+    function checkUserRoleAndShowButtons() {
+        const userData = JSON.parse(localStorage.getItem('user') || 'null');
+        const isAuthenticated = userData && userData.name;
+        const isAdmin = userData && (userData.role === 'ROLE_ADMIN' || userData.role === 'ROLE_administrador');
+
+        // Botón "Navegar hechos" - siempre visible
+        const btnNavegar = document.getElementById('btn-navegar');
+        if (btnNavegar) btnNavegar.style.display = 'inline-block';
+
+        // Botón "Cargar hechos" - visible solo para usuarios autenticados
+        const btnCargar = document.getElementById('btn-cargar');
+        if (btnCargar) {
+            if (isAuthenticated) {
+                btnCargar.style.display = 'inline-block';
+            } else {
+                btnCargar.style.display = 'none';
+            }
+        }
+
+        // Botones de admin - solo visibles para administradores
+        const btnColecciones = document.getElementById('btn-colecciones');
+        const btnImportar = document.getElementById('btn-importar');
+        const btnSolicitudes = document.getElementById('btn-solicitudes');
+        const popupImportar = document.getElementById('popup-importar');
+
+        if (isAdmin) {
+            if (btnColecciones) btnColecciones.style.display = 'inline-block';
+            if (btnImportar) btnImportar.style.display = 'inline-block';
+            if (btnSolicitudes) btnSolicitudes.style.display = 'inline-block';
+            if (popupImportar) popupImportar.style.display = '';
+        } else {
+            if (btnColecciones) btnColecciones.style.display = 'none';
+            if (btnImportar) btnImportar.style.display = 'none';
+            if (btnSolicitudes) btnSolicitudes.style.display = 'none';
+            if (popupImportar) popupImportar.remove();
+        }
+    }
+
+    // Ejecutar al cargar la página
+    document.addEventListener('DOMContentLoaded', checkUserRoleAndShowButtons);
+*/
+    // Event listeners para los botones
+    document.addEventListener('DOMContentLoaded', () => {
+        // Mostrar toast si hay mensajes de importación
+        if (typeof mensajeExito !== 'undefined' && mensajeExito && window.Toast) {
+            window.Toast.success(mensajeExito, {
+                duration: 5000
+            });
+        }
+
+        if (typeof mensajeError !== 'undefined' && mensajeError && window.Toast) {
+            window.Toast.error(mensajeError, {
+                duration: 6000
+            });
+        }
+        // Botón navegar - siempre existe
+        const btnNavegar = document.getElementById("btn-navegar");
+        if (btnNavegar) {
+            btnNavegar.addEventListener("click", () => {
+                window.location.href = "colecciones";
+            });
+        }
+
+        // Botón cargar - solo para CONTRIBUYENTE
+        const btnCargar = document.getElementById("btn-cargar");
+        if (btnCargar) {
+            btnCargar.addEventListener("click", () => {
+                const userData = JSON.parse(localStorage.getItem('user') || 'null');
+                /*if (!userData || !userData.name) {
+                    alert('Debes iniciar sesión para cargar hechos');
+                    return;
+                }*/
+                window.location.href = 'cargarHecho';
+            });
+        }
+
+        // Event listeners para botones de admin
+        const btnColecciones = document.getElementById('btn-colecciones');
+        if (btnColecciones) {
+            btnColecciones.addEventListener('click', () => {
+                window.location.href = '/admin/colecciones';
+            });
+        }
+
+        const btnSolicitudes = document.getElementById('btn-solicitudes');
+        if (btnSolicitudes) {
+            btnSolicitudes.addEventListener('click', () => {
+                window.location.href = '/admin/solicitudes';
+            });
+        }
+
+        const btnImportar = document.getElementById('btn-importar');
+        if (btnImportar) {
+            btnImportar.addEventListener('click', () => {
+                window.location.href = '/admin/importar';
+            });
+        }
+
+        const btnPanel = document.getElementById('btn-panel_de_control');
+        if (btnPanel) {
+            btnPanel.addEventListener('click', () => {
+                window.location.href = '/panel';
+            });
+        }
+
+        const btnRegisterAdmin = document.getElementById('btn-register_admin');
+        if (btnRegisterAdmin) {
+            btnRegisterAdmin.addEventListener('click', () => {
+                window.location.href = '/registerAdmin';
+            });
+        }
+    });
+</script>
+
+<!-- FOOTER -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+<script th:src="@{/js/toast.js}"></script>
+<script th:src="@{/js/passwordToggle.js}"></script>
+<!--<script th:src="@{/js/roleChecker.js}"></script> -->
+<script th:src="@{/js/auth.js}"></script>
+<script th:src="@{/js/userMenu.js}"></script>
+</body>
+</html>

@@ -1,0 +1,1130 @@
+/* ====== IMPORTAR SISTEMA DE COLORES ====== */
+@import url('variables.css');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    overflow-x: hidden;
+}
+
+/* ---------- HEADER ESPECÍFICO LANDING ---------- */
+/* Override del header genérico para landing page */
+/* Header con 3 columnas: logo | título centrado | botones */
+body > header {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    padding: 15px 30px;
+    background: var(--gradient-primary);
+    min-height: 80px;
+    gap: 10px;
+    position: relative;
+    box-shadow: var(--shadow-lg);
+    overflow: visible;
+    z-index: 9999;
+}
+
+body > header .logo-link {
+    justify-self: start;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    transition: opacity 0.2s ease;
+}
+
+body > header .logo-link:hover {
+    opacity: 0.8;
+}
+
+body > header .logo {
+    height: 40px;
+    transform: scale(1.5);
+    transform-origin: left center;
+}
+
+body > header h1 {
+    position: static;
+    grid-column: 2;
+    justify-self: center;
+    font-size: 28px;
+    white-space: nowrap;
+    transform: none;
+    left: auto;
+    color: var(--text-white);
+}
+
+body > header .header-right {
+    justify-self: end;
+    grid-column: 3;
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    position: relative;
+    z-index: 10000;
+}
+
+/* ---------- NOTIFICACIONES EN HEADER ---------- */
+body > header .notifications {
+    position: relative;
+    z-index: 10001;
+}
+
+body > header .bell-btn {
+    position: relative;
+    z-index: 10002;
+}
+
+body > header .notifications-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    z-index: 10003;
+    margin-top: 8px;
+}
+
+body > header .notifications.show .notifications-dropdown {
+    display: block !important;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Asegurar que el profile también funcione */
+body > header .profile {
+    position: relative;
+    z-index: 10001;
+}
+
+/* ---------- HERO ---------- */
+.hero {
+    position: relative;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    color: var(--text-primary);
+    overflow: hidden;
+    z-index: 1;
+}
+
+.hero::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url("https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/World_map_-_low_resolution.svg/1200px-World_map_-_low_resolution.svg.png") no-repeat center/cover;
+    opacity: 0.4;
+    z-index: -1;
+}
+
+.hero h2 {
+    font-size: 28px;
+    margin-bottom: 30px;
+    color: var(--text-primary);
+    padding: 0 20px;
+}
+
+.arrow {
+    font-size: 40px;
+    animation: bounce 1.5s infinite;
+    color: var(--primary-color);
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(10px); }
+}
+
+/* ---------- ESPACIO AZUL ---------- */
+.spacer {
+    height: 80px;
+    background: var(--bg-tertiary);
+}
+
+/* ---------- POP UP ---------- */
+.popup {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.popup-content {
+    background: var(--bg-white);
+    padding: 30px;
+    border-radius: 12px;
+    min-width: 380px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: var(--shadow-xl);
+    text-align: left;
+    position: relative;
+}
+
+.popup-content h2 {
+    margin-bottom: 20px;
+    font-size: 22px;
+}
+
+.popup-content label {
+    display: block;
+    margin-top: 12px;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.popup-content input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid var(--border-medium);
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color var(--transition-fast);
+}
+
+.popup-content input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+}
+
+.popup-content button {
+    margin-top: 10px;
+    padding: 10px 20px;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    width: 100%;
+    font-size: 16px;
+    transition: background 0.3s;
+}
+
+.popup-content button:hover {
+    background: var(--primary-hover);
+}
+
+.popup-content a {
+    display: block;
+    margin-top: 10px;
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.popup-content a:hover {
+    text-decoration: underline;
+}
+
+.popup-content .close {
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    color: var(--text-secondary);
+}
+
+.popup-content .close:hover {
+    color: var(--text-primary);
+}
+
+/* ---------- FEATURES ---------- */
+.features {
+    background: var(--bg-white);
+    text-align: center;
+}
+
+.feature {
+    min-height: 25vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    padding: 40px 20px;
+}
+
+.feature p {
+    font-size: 20px;
+    max-width: 600px;
+}
+
+.icon {
+    width: 80px;
+    height: 80px;
+    stroke: #1E1E1E;
+    stroke-width: 2;
+    fill: none;
+}
+
+/* Animaciones de iconos */
+.map-icon {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.lock-icon {
+    animation: rotate 3s infinite linear;
+}
+
+@keyframes rotate {
+    0% { transform: rotate(0deg); }
+    50% { transform: rotate(15deg); }
+    100% { transform: rotate(0deg); }
+}
+
+.users-icon {
+    opacity: 0;
+    animation: fadeIn 2s forwards;
+}
+
+@keyframes fadeIn {
+    to { opacity: 1; }
+}
+
+.pen-icon {
+    animation: write 2s infinite;
+}
+
+@keyframes write {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(10px); }
+}
+
+.shield-icon {
+    animation: bounceShield 1.5s infinite;
+}
+
+@keyframes bounceShield {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+/* ---------- EXPLORA / COLECCIONES ---------- */
+.explora,
+.collections-grid {
+    padding: 40px 20px;
+    text-align: center;
+    background: var(--bg-white);
+}
+
+.explora h2 {
+    margin-bottom: 10px;
+    font-size: 32px;
+}
+
+.explora-subtitle {
+    color: var(--text-secondary);
+    font-size: 16px;
+    margin-bottom: 30px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* ---------- COLECCIÓN DESTACADA ---------- */
+.collection-destacada {
+    max-width: 900px !important;
+    margin: 0 auto;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+    background: var(--bg-white);
+    border: 1px solid var(--border-light);
+}
+
+.collection-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.collection-header h2 {
+    margin: 0;
+    font-size: 26px;
+    color: var(--text-primary);
+}
+
+.hechos-badge {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.collection-description {
+    color: var(--text-secondary);
+    font-size: 15px;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.collection-map {
+    height: 450px !important;
+    min-height: 450px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border-light);
+}
+
+.map-hint {
+    margin-top: 15px;
+    margin-bottom: 0;
+    color: var(--text-secondary);
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.hint-icon {
+    font-size: 16px;
+}
+
+.ejemplo-disclaimer {
+    color: #666;
+    font-size: 15px;
+    margin-top: 25px;
+    text-align: center;
+    padding: 12px 20px;
+    background: var(--bg-tertiary);
+    border-radius: 8px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.collection-ejemplo {
+    border: 2px dashed var(--border-medium);
+    background: linear-gradient(135deg, var(--bg-white) 0%, var(--bg-secondary) 100%);
+}
+
+/* ---------- CARRUSEL DE COLECCIONES ---------- */
+.carousel-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+}
+
+.carousel-content {
+    flex: 1;
+    max-width: 800px;
+    overflow: hidden;
+}
+
+.carousel-btn {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    font-size: 32px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.carousel-btn:hover {
+    background: var(--primary-hover);
+    transform: scale(1.1);
+}
+
+
+.carousel-btn:active {
+    transform: scale(0.95);
+}
+
+.carousel-btn:disabled {
+    background: var(--secondary-color);
+    cursor: not-allowed;
+    opacity: var(--opacity-disabled);
+}
+
+.carousel-prev {
+    order: -1;
+}
+
+.carousel-next {
+    order: 1;
+}
+
+.collection-carousel-card {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+/* Indicadores del carrusel */
+.carousel-indicators {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+.carousel-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--border-medium);
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0;
+}
+
+.carousel-indicator.active {
+    background: var(--primary-color);
+    transform: scale(1.3);
+}
+
+.carousel-indicator:hover {
+    background: var(--primary-light);
+}
+
+.cards-container,
+.collections-grid {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    align-items: stretch;
+    justify-content: center;
+}
+
+.card,
+.collection-card {
+    min-width: 300px;
+    max-width: 500px;
+    border: 1px solid var(--border-medium);
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+    box-sizing: border-box;
+    background: var(--bg-white);
+    border-radius: 8px;
+}
+
+.collection-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.collection-card h3,
+.card h2 {
+    margin-bottom: 10px;
+    font-size: 22px;
+}
+
+.collection-card p,
+.card p {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+/* Hechos (botones) */
+.hechos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 15px;
+    min-height: 40px;
+}
+
+.hechos button {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.3s;
+}
+
+.hechos button:hover {
+    background: var(--primary-hover);
+}
+
+
+/* Mapa */
+.map {
+    flex-grow: 1;
+    min-height: 250px;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+/* ---------- LEAFLET CONTROLS ---------- */
+.leaflet-control {
+    margin-top: 8px !important;
+}
+
+.center-btn {
+    border: 1px solid var(--border-medium);
+    background: white;
+    border-radius: 5px;
+    padding: 6px 10px;
+    margin-top: 8px;
+    cursor: pointer;
+}
+
+.center-btn:hover {
+    background: var(--bg-tertiary);
+}
+
+/* ---------- BOTONES Y TAGS ---------- */
+.buttons-tags button {
+    margin: 5px;
+    padding: 6px 12px;
+    border: none;
+    background: var(--primary-color);
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.buttons-tags button:hover {
+    background: var(--primary-hover);
+}
+
+.tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.tag {
+    display: inline-block;
+    background: var(--bg-tertiary);
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.tag:hover {
+    background: var(--border-medium);
+}
+
+/* Botón principal "Comenzar a Navegar" */
+.start-btn {
+    margin-top: 30px;
+    padding: 12px 28px;
+    font-size: 15px;
+    font-weight: 600;
+    border: none;
+    border-radius: var(--radius-md);
+    background: var(--primary-color);
+    color: var(--text-white);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    box-shadow: var(--shadow-md);
+    letter-spacing: 0.3px;
+}
+
+.start-btn:hover {
+    background: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-xl);
+}
+
+.start-btn:active {
+    transform: translateY(0);
+    box-shadow: var(--shadow-sm);
+}
+
+/* ---------- FOOTER ---------- */
+footer {
+    background: var(--bg-tertiary);
+    text-align: center;
+    padding: 40px 20px;
+    font-size: 13px;
+    margin-top: 40px;
+    color: var(--text-secondary);
+}
+
+footer p {
+    max-width: 800px;
+    margin: 0 auto 10px;
+    line-height: 1.6;
+}
+
+.footer-logo {
+    height: 50px;
+    margin-bottom: 10px;
+    transform: scale(1.5);
+    transform-origin: center;
+}
+
+.github-icon {
+    margin-top: 15px;
+    height: 35px;
+    cursor: pointer;
+    transition: transform 0.3s;
+}
+
+.github-icon:hover {
+    transform: scale(1.1);
+}
+
+.github-link {
+    display: inline-block;
+}
+
+/* ---------- MEDIA QUERIES ---------- */
+
+/* Tablets (768px - 1024px) */
+@media (max-width: 1024px) {
+    header h1 {
+        font-size: 24px;
+    }
+
+    .hero h2 {
+        font-size: 24px;
+    }
+
+    .feature p {
+        font-size: 18px;
+    }
+
+    .cards-container,
+    .collections-grid {
+        gap: 15px;
+    }
+}
+
+/* Móviles (max-width: 768px) */
+@media (max-width: 768px) {
+    /* Header especial de landing responsive */
+    body > header {
+        grid-template-columns: auto 1fr auto;
+        padding: 10px 15px;
+        min-height: 70px;
+    }
+
+    body > header .logo {
+        height: 35px;
+        transform: scale(1.2);
+    }
+
+    body > header h1 {
+        font-size: 20px;
+    }
+
+    body > header .header-right {
+        justify-self: end;
+    }
+
+    .buttons {
+        width: auto;
+        justify-content: flex-end;
+    }
+
+    .buttons button {
+        flex: 0 1 auto;
+        max-width: none;
+        font-size: 12px;
+        padding: 6px 12px;
+    }
+
+    .profile {
+        margin: 0;
+    }
+
+    .hero {
+        height: 70vh;
+    }
+
+    .hero h2 {
+        font-size: 20px;
+        padding: 0 15px;
+    }
+
+    .arrow {
+        font-size: 32px;
+    }
+
+    .spacer {
+        height: 40px;
+    }
+
+    .feature {
+        min-height: auto;
+        padding: 30px 15px;
+    }
+
+    .feature p {
+        font-size: 16px;
+    }
+
+    .icon {
+        width: 60px;
+        height: 60px;
+    }
+
+    .popup-content {
+        padding: 20px;
+        min-width: auto;
+        width: 95%;
+    }
+
+    .popup-content h2 {
+        font-size: 18px;
+    }
+
+    .cards-container,
+    .collections-grid {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .card,
+    .collection-card {
+        flex: 1 1 100%;
+        max-width: 100%;
+    }
+
+    .explora h2 {
+        font-size: 24px;
+    }
+
+    .map {
+        min-height: 200px;
+    }
+
+    .start-btn {
+        width: 100%;
+        max-width: 300px;
+    }
+
+    footer {
+        padding: 30px 15px;
+        font-size: 12px;
+    }
+
+    /* Carrusel responsive */
+    .carousel-container {
+        gap: 10px;
+    }
+
+    .carousel-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 24px;
+    }
+
+    .carousel-indicators {
+        gap: 8px;
+    }
+
+    .carousel-indicator {
+        width: 10px;
+        height: 10px;
+    }
+}
+
+/* Móviles pequeños (max-width: 480px) */
+@media (max-width: 480px) {
+    /* Header especial de landing en móviles pequeños */
+    body > header {
+        padding: 8px 10px;
+        min-height: 60px;
+    }
+
+    body > header .logo {
+        height: 30px;
+        transform: scale(1.1);
+    }
+
+    body > header h1 {
+        font-size: 18px;
+    }
+
+    .buttons button {
+        padding: 5px 10px;
+        font-size: 11px;
+    }
+
+    .hero h2 {
+        font-size: 18px;
+    }
+
+    .arrow {
+        font-size: 28px;
+    }
+
+    .buttons button {
+        padding: 6px 12px;
+        font-size: 13px;
+    }
+
+    .popup-content {
+        padding: 15px;
+    }
+
+    .popup-content button {
+        padding: 8px 16px;
+        font-size: 14px;
+    }
+
+    .feature p {
+        font-size: 14px;
+    }
+
+    .icon {
+        width: 50px;
+        height: 50px;
+    }
+
+    .hechos button {
+        padding: 5px 10px;
+        font-size: 12px;
+    }
+
+    .start-btn {
+        padding: 10px 22px;
+        font-size: 14px;
+    }
+
+    /* Carrusel en móviles pequeños */
+    .carousel-container {
+        gap: 8px;
+        padding: 0 5px;
+    }
+
+    .carousel-btn {
+        width: 35px;
+        height: 35px;
+        font-size: 20px;
+    }
+
+    .carousel-indicators {
+        gap: 6px;
+    }
+
+    .carousel-indicator {
+        width: 8px;
+        height: 8px;
+    }
+
+    .collection-carousel-card {
+        padding: 12px;
+    }
+
+    .collection-carousel-card h2 {
+        font-size: 18px;
+    }
+}
+
+/* ====== MODAL/POPUP PARA DETALLES DEL HECHO ====== */
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    z-index: 10000;
+}
+
+.popup-overlay.active {
+    display: block;
+}
+
+.popup-hecho {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    max-width: 700px;
+    width: 90%;
+    max-height: 85vh;
+    overflow-y: auto;
+    z-index: 10001;
+    animation: slideIn 0.3s ease-out;
+}
+
+.popup-hecho.hidden {
+    display: none;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -48%);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+
+.cerrar-popup-hecho {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #999;
+    transition: color 0.2s;
+    padding: 5px 10px;
+    line-height: 1;
+}
+
+.cerrar-popup-hecho:hover {
+    color: #333;
+}
+
+.popup-hecho h2 {
+    margin-bottom: 20px;
+    color: #333;
+    font-size: 24px;
+    padding-right: 30px;
+}
+
+.hecho-detalle {
+    margin-bottom: 20px;
+}
+
+.hecho-detalle p {
+    margin: 12px 0;
+    line-height: 1.6;
+}
+
+.hecho-detalle strong {
+    color: #555;
+    font-weight: 600;
+}
+
+.hecho-descripcion-text {
+    color: #666;
+    font-size: 15px;
+    margin: 8px 0 16px 0;
+    padding: 10px;
+    background: #f9f9f9;
+    border-radius: 6px;
+    border-left: 3px solid var(--primary-color);
+}
+
+.hecho-multimedia {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.hecho-multimedia img {
+    max-width: 100%;
+    border-radius: 8px;
+    margin-top: 10px;
+}
+
+.hecho-multimedia video {
+    max-width: 100%;
+    border-radius: 8px;
+    margin-top: 10px;
+}
+
+.hecho-multimedia audio {
+    width: 100%;
+    margin-top: 10px;
+}
+
+.popup-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.btn-ver-en-mapa {
+    flex: 1;
+    padding: 12px 20px;
+    background: var(--gradient-primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-ver-en-mapa:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Responsive para el modal */
+@media (max-width: 768px) {
+    .popup-hecho {
+        padding: 20px;
+        width: 95%;
+        max-height: 90vh;
+    }
+
+    .popup-hecho h2 {
+        font-size: 20px;
+    }
+
+    .btn-ver-en-mapa {
+        font-size: 14px;
+        padding: 10px 16px;
+    }
+}
+

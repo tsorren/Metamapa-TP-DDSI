@@ -1,0 +1,124 @@
+/* ====== IMPORTAR SISTEMA DE COLORES ====== */
+@import url('variables.css');
+
+/* ====== BASE ====== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+
+/* ====== HERO (mismo mapa de fondo claro y texto centrado) ====== */
+.hero {
+    position: relative;
+    min-height: calc(100vh - 70px); /* Altura mínima hasta antes del footer */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: var(--text-primary);
+    z-index: 1;
+    padding: 20px;
+    padding-top: 100px;
+    flex: 1;
+}
+
+.hero::before {
+    content: "";
+    position: fixed; /* Fixed para que cubra toda la pantalla */
+    top: 70px; /* Justo debajo del header */
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/World_map_-_low_resolution.svg/1200px-World_map_-_low_resolution.svg.png") no-repeat center center;
+    background-size: contain; /* Contain para que el mapa se vea completo */
+    background-attachment: fixed;
+    opacity: 0.4;
+    z-index: -1;
+    pointer-events: none;
+}
+
+.hero h1 {
+    font-size: 42px; /* Reducido de 48px a 42px */
+    margin-bottom: 25px; /* Reducido de 30px a 25px */
+    color: var(--text-primary);
+    z-index: 2;
+}
+
+.hero-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Reducido de 20px a 15px */
+    align-items: center;
+    z-index: 2;
+}
+
+.hero-btn {
+    background: var(--primary-color);
+    color: var(--text-white);
+    border: none;
+    padding: 12px 25px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: 16px; /* Reducido de 18px a 16px */
+    font-weight: 600;
+    width: 240px; /* Reducido de 260px a 240px */
+    transition: all var(--transition-normal);
+    box-shadow: var(--shadow-md);
+}
+
+.hero-btn:hover {
+    background: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-xl);
+}
+
+.hero-btn:active {
+    transform: translateY(0);
+    box-shadow: var(--shadow-sm);
+}
+
+/* ====== RESPONSIVE ====== */
+@media (max-width: 768px) {
+    .hero h1 {
+        font-size: 32px;
+    }
+
+    .hero-btn {
+        width: 80%;
+        font-size: 15px;
+        padding: 10px 20px;
+    }
+
+    .hero-buttons {
+        gap: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero h1 {
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
+
+    .hero-btn {
+        width: 90%;
+        font-size: 14px;
+        padding: 10px 20px;
+    }
+
+    .hero-buttons {
+        gap: 10px;
+    }
+}

@@ -1,0 +1,94 @@
+@startuml
+skinparam rectangle {
+  BackgroundColor White
+  BorderColor Black
+}
+
+' Agregador
+node "Agregador" {
+    component API as api_agregador #orchid
+
+    component Modelo as modelo_agregador{
+        folder Agregacion as agregacion #orange
+        folder Fuentes as fuentes_agregador #lightgreen
+        folder Solicitudes as solicitudes_agregador #pink
+
+        agregacion -> fuentes_agregador
+        agregacion --> solicitudes_agregador
+        solicitudes_agregador -> fuentes_agregador
+    }
+    api_agregador --> agregacion
+
+}
+control scheduler as controlador_agregador
+controlador_agregador --> agregacion
+database "Hechos y \nSolicitudes" as hechos_agregador #orangered
+modelo_agregador -> hechos_agregador
+
+
+' Fuente de Datos Estática
+node "Fuente De Datos Estática" {
+    component API as api_estatica #orchid
+    component Modelo as modelo_estatica{
+        folder Fuentes as fuentes_estaticas #lightgreen
+    }
+
+    api_estatica --> modelo_estatica
+    database "Dataset" as dataset #orangered
+    fuentes_estaticas -> dataset
+}
+
+' Fuente de Datos Proxy
+node "Fuente De Datos Proxy" {
+    component API as api_proxy #orchid
+    component Modelo as modelo_proxy{
+        folder Fuentes as fuentes_proxy #lightgreen
+    }
+
+    api_proxy --> modelo_proxy
+}
+cloud "Servicio Externo" as servicio_externo #gold
+fuentes_proxy --> servicio_externo : http
+
+
+' Fuente de Datos Dinámica
+node "Fuente De Datos Dinámica" {
+    component API as api_dinamica #orchid
+
+    component Modelo as modelo_dinamico{
+        folder Fuentes as fuentes_dinamicas #lightgreen
+        folder Solicitudes as solicitudes_dinamicas #pink
+
+        solicitudes_dinamicas -> fuentes_dinamicas
+   }
+    api_dinamica --> modelo_dinamico
+}
+
+node "Servicio de Estadisticas" as servicio_estadisticas{
+    component "Generador \n de \n estadisticas" as generadorEstadisticas #grey
+    component "UI\nvisualizador" as ui_estadisticas #lightblue
+    component Modelo as modelo_estadisticas{
+        folder Fuentes as fuentes_estadisticas #lightgreen
+        fuentes_estadisticas -> api_agregador: http
+    }
+    generadorEstadisticas --> modelo_estadisticas
+
+}
+control scheduler_estadisticas as controlador_estadisticas
+ui_estadisticas --> generadorEstadisticas
+controlador_estadisticas --> generadorEstadisticas
+
+database "Estadisticas" as estadisticasBF #orangered
+generadorEstadisticas --> estadisticasBF
+
+database "Hechos y \nSolicitudes" as hechos_dinamica #orangered
+fuentes_dinamicas -> hechos_dinamica
+
+
+' Conexiones entre componentes
+modelo_agregador --> api_estatica : http
+modelo_agregador --> api_proxy : http
+modelo_agregador --> api_dinamica : http
+modelo_agregador --> modelo_estadisticas
+
+@enduml

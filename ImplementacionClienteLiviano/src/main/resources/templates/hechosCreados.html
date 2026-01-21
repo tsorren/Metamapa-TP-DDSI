@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/logo.svg}">
+    <title>MetaMapa - Hechos Creados</title>
+    <link rel="stylesheet" th:href="@{/css/variables.css}"/>
+    <link rel="stylesheet" th:href="@{/css/common.css}"/>
+    <link rel="stylesheet" th:href="@{/css/styleHechosCreados.css}"/>
+    <!-- Toast System y Notificaciones -->
+    <div th:replace="~{fragments/header :: toast-resources}"></div>
+</head>
+<body>
+<!-- HEADER -->
+<div th:replace="~{fragments/header :: header}"></div>
+
+<!-- MAIN (Los hechos se cargarán dinámicamente desde el backend) -->
+<main>
+    <h1>Mis Hechos Creados</h1>
+    <div class="loading">
+        <p>Cargando tus hechos...</p>
+    </div>
+</main>
+
+<!-- FOOTER -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script th:src="@{/js/hechosCreados.js}"></script>
+<script th:src="@{/js/userMenu.js}"></script>
+</body>
+</html>

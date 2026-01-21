@@ -1,0 +1,84 @@
+@startuml
+!theme plain
+
+entity Hecho{
+    --PK--
+    id(long)
+    --FK--
+    idProvincia(long)
+    idFechaRecoleccion(dateTime)
+    idCategoria(long)
+    idCollecion(long)
+    idHoraDelDia(long)
+    --
+    cantidad(bigint)
+}
+
+
+entity Solicitud_Eliminacion{
+    --PK--
+    id(long)
+    --FK--
+     idFechaRecoleccion(dateTime)
+     idMotivoRechazo(string)
+    --
+    cantidad(bigint)
+}
+
+
+
+entity Dimension_Provincia{
+    --PK--
+    id(long)
+    --
+    nombre(string)
+}
+
+entity Dimension_FechaRecoleccion{
+    --PK--
+    id(dateTime)
+    --
+    dia(int)
+    mes(int)
+    anio(int)
+}
+
+entity Dimension_Categoria{
+    --PK--
+    id(long)
+    --
+    nombre(string)
+}
+
+entity Dimension_Coleccion{
+    --PK--
+    id(long)
+    --
+    idExterno(long)
+    nombre(string)
+}
+
+entity Dimension_HoraDelDia{
+    --PK--
+    id(long)
+    --
+    hora(int)
+}
+
+entity Motivo_Rechazo{
+    --PK--
+    id(string)
+    --
+    descripcion(string)
+}
+
+Hecho }o--|| Dimension_Provincia
+Hecho }o--|| Dimension_FechaRecoleccion
+Hecho }o--|| Dimension_Categoria
+Hecho }|--|{ Dimension_Coleccion
+Hecho }o--|| Dimension_HoraDelDia
+
+Solicitud_Eliminacion }o--|| Dimension_FechaRecoleccion
+Solicitud_Eliminacion }o--|| Motivo_Rechazo
+
+@enduml

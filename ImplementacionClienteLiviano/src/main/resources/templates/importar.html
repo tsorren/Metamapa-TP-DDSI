@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/logo.svg}">
+    <title>MetaMapa - Importar Archivos CSV</title>
+    <link rel="stylesheet" th:href="@{/css/variables.css}">
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+    <link rel="stylesheet" th:href="@{/css/styleImportar.css}">
+    <link rel="stylesheet" th:href="@{/css/importProgress.css}">
+    <!-- Toast System y Notificaciones -->
+    <div th:replace="~{fragments/header :: toast-resources}"></div>
+</head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+<main class="importar-page" style="margin-top: 80px;">
+
+    <div class="popup-content">
+        <div class="popup-header">
+            <h2>Importar Archivos CSV</h2>
+        </div>
+
+        <form class="popup-body" enctype="multipart/form-data" id="import-form" method="post"
+              th:action="@{/admin/importar}">
+            <label class="file-drop" for="import-file">
+                <img alt="Subir archivo" th:src="@{/images/upload-icon.svg}">
+                <p>Arrastrá o seleccioná un archivo</p>
+            </label>
+
+            <input accept=".csv,.json" id="import-file" name="archivo" type="file"/>
+
+            <div class="file-info hidden" id="file-info">
+                <div class="file-details">
+                    <img alt="Archivo" class="file-icon" th:src="@{/images/file-icon.svg}"/>
+                    <span id="file-name">archivo.csv</span>
+                    <button class="remove-file" id="remove-file" type="button">&times;</button>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-bar" id="progress-bar"></div>
+                </div>
+            </div>
+
+            <div class="popup-footer">
+                <button class="btn-confirm" id="confirm-import" type="submit">Confirmar</button>
+                <a href="#" th:href="@{/admin}" class="btn-cancel">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</main>
+
+<!-- FOOTER -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script th:src="@{/js/toast.js}"></script>
+<script th:src="@{/js/importProgress.js}"></script>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    // Obtener mensajes flash de Thymeleaf
+    const mensajeExito = /*[[${mensaje}]]*/ null;
+    const mensajeError = /*[[${error}]]*/ null;
+    /*]]>*/
+
+    // Mostrar toast cuando la página carga si hay mensajes
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('[Importar] Página cargada');
+        console.log('[Importar] Mensaje éxito:', mensajeExito);
+        console.log('[Importar] Mensaje error:', mensajeError);
+        console.log('[Importar] Toast disponible:', typeof window.Toast);
+        console.log('[Importar] ImportProgressTracker disponible:', typeof window.ImportProgressTracker);
+
+        // Mostrar mensaje de éxito
+        if (mensajeExito && window.Toast) {
+            console.log('[Importar] Mostrando toast de éxito');
+            window.Toast.success(mensajeExito, {
+                duration: 5000
+            });
+        }
+
+        // Mostrar mensaje de error
+        if (mensajeError && window.Toast) {
+            console.log('[Importar] Mostrando toast de error');
+            window.Toast.error(mensajeError, {
+                duration: 6000
+            });
+        }
+
+        // Manejar el submit del formulario con AJAX
+        const form = document.getElementById('import-form');
+        if (form) {
+            console.log('[Importar] Formulario encontrado, agregando listener');
+
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                console.log('[Importar] Submit interceptado');
+
+                const fileInput = document.getElementById('import-file');
+                const file = fileInput.files[0];
+
+                if (!file) {
+                    console.error('[Importar] No hay archivo seleccionado');
+                    if (window.Toast) {
+                        window.Toast.error('Por favor seleccione un archivo');
+                    }
+                    return;
+                }
+
+                console.log('[Importar] Archivo seleccionado:', file.name, 'Tamaño:', file.size);
+
+                // *** MOSTRAR BARRA DE PROGRESO INMEDIATAMENTE ***
+                let tracker = null;
+                if (window.ImportProgressTracker) {
+                    console.log('[Importar] Creando barra de progreso inicial');
+                    tracker = new window.ImportProgressTracker();
+                    // Mostrar UI sin iniciar polling todavía
+                    tracker.crearUI();
+                    // Mostrar mensaje de carga inicial
+                    if (tracker.progressText) {
+                        tracker.progressText.textContent = 'Subiendo archivo al servidor...';
+                    }
+                    if (tracker.progressBar) {
+                        tracker.progressBar.style.width = '0%';
+                    }
+                } else {
+                    console.error('[Importar] ImportProgressTracker no está disponible');
+                }
+
+                // Crear FormData
+                const formData = new FormData();
+                formData.append('archivo', file);
+
+                try {
+                    // Deshabilitar el botón de submit
+                    const submitBtn = document.getElementById('confirm-import');
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.textContent = 'Subiendo...';
+                    }
+
+                    console.log('[Importar] Enviando archivo a /admin/importar/async');
+
+                    // Actualizar mensaje mientras se sube
+                    if (tracker && tracker.progressText) {
+                        tracker.progressText.textContent = 'Enviando archivo al servidor...';
+                    }
+
+                    // Enviar archivo
+                    const response = await fetch('/admin/importar/async', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    console.log('[Importar] Respuesta recibida:', response.status);
+                    const result = await response.json();
+                    console.log('[Importar] Resultado:', result);
+
+                    if (response.ok && result.success) {
+                        console.log('[Importar] Importación iniciada, fuenteId:', result.fuenteId);
+
+                        // Actualizar mensaje
+                        if (tracker && tracker.progressText) {
+                            tracker.progressText.textContent = 'Procesando hechos del archivo...';
+                        }
+
+                        // Ahora SÍ iniciar el polling con el fuenteId
+                        if (tracker) {
+                            console.log('[Importar] Iniciando tracker de progreso con polling');
+                            tracker.fuenteId = result.fuenteId;
+                            tracker.iniciarPolling();
+                        }
+                    } else {
+                        console.error('[Importar] Error en la respuesta:', result);
+
+                        // Ocultar barra de progreso
+                        if (tracker && tracker.progressContainer) {
+                            tracker.progressContainer.style.display = 'none';
+                        }
+
+                        if (window.Toast) {
+                            window.Toast.error(result.error || 'Error al iniciar la importación');
+                        }
+
+                        // Rehabilitar botón
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.textContent = 'Confirmar';
+                        }
+                    }
+                } catch (error) {
+                    console.error('[Importar] Error capturado:', error);
+
+                    // Ocultar barra de progreso
+                    if (tracker && tracker.progressContainer) {
+                        tracker.progressContainer.style.display = 'none';
+                    }
+
+                    if (window.Toast) {
+                        window.Toast.error('Error al comunicarse con el servidor: ' + error.message);
+                    }
+
+                    // Rehabilitar botón
+                    const submitBtn = document.getElementById('confirm-import');
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Confirmar';
+                    }
+                }
+            });
+        } else {
+            console.error('[Importar] Formulario no encontrado!');
+        }
+    });
+</script>
+
+<script th:src="@{/js/userMenu.js}"></script>
+</body>
+</html>

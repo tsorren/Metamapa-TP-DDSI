@@ -1,0 +1,208 @@
+@startuml
+
+' Dirección del diagrama
+left to right direction
+
+' Relaciones generales
+Hecho -up-> Categoria
+Hecho -up-> TipoOrigen
+Hecho -down-> Multimedia
+Hecho -down-> Ubicacion
+Hecho -left-> "*" Etiqueta
+Hecho -down-> Fuente
+Hecho -up->"*" TipoConsenso
+
+Multimedia -down-> TipoContenido
+
+Coleccion --> CriterioDePertenencia
+Coleccion --> "*" Hecho
+Coleccion --> "*" Fuente
+Coleccion --> TipoConsenso
+
+CriterioDePertenencia --> "*" Filtro
+
+SolicitudDeEliminacion --> EstadoAtencionSolicitud
+SolicitudDeEliminacion --> Hecho
+
+Fuente --> ModuloFuente
+ModuloFuente --> TipoFuente
+
+' Clases de filtros
+abstract class Filtro {
+    # tipo: String
+    + cumpleCon(hecho: Hecho): Bool
+    + parametros(): List<String>
+}
+
+class FiltroCategoria {
+    - categoria: Categoria
+    + cumpleCon(hecho: Hecho): Bool
+    + parametros(): List<String>
+}
+Filtro <|-up- FiltroCategoria
+
+class FiltroDescripcion {
+    - descripcion: String
+    + cumpleCon(hecho: Hecho): Bool
+    + parametros(): List<String>
+}
+Filtro <|-up- FiltroDescripcion
+
+class FiltroFechaEntre {
+    - fechaInicio: LocalDateTime
+    - fechaFin: LocalDateTime
+    + cumpleCon(hecho: Hecho): Bool
+    + parametros(): List<String>
+}
+Filtro <|-down- FiltroFechaEntre
+
+class FiltroFechaExacta {
+    - fecha: LocalDateTime
+    + cumpleCon(hecho: Hecho): Bool
+    + parametros(): List<String>
+}
+Filtro <|-down- FiltroFechaExacta
+
+class FiltroTitulo {
+    - titulo: String
+    + cumpleCon(hecho: Hecho): Bool
+    + parametros(): List<String>
+}
+Filtro <|-left- FiltroTitulo
+
+class FiltroUbicacion {
+    - ubicacion: Ubicacion
+    + cumpleCon(hecho: Hecho): Bool
+    + parametros(): List<String>
+}
+Filtro <|-left- FiltroUbicacion
+
+class FiltroTipoOrigen {
+    - tipoOrigen: TipoOrigen
+    + cumpleCon(hecho: Hecho): Bool
+    + parametros(): List<String>
+}
+Filtro <|-right- FiltroTipoOrigen
+
+class FiltroMultimedia {
+    - tipoContenido: TipoContenido
+    + cumpleCon(hecho: Hecho): Bool
+    + parametros(): List<String>
+}
+Filtro <|-right- FiltroMultimedia
+
+' Clases de fuente
+class Fuente {
+    - modulo: ModuloFuente
+    - identificadorExterno: Long
+}
+
+class ModuloFuente {
+    - tipo: TipoFuente
+    - api: WebClient
+    - baseUrl: String
+}
+
+enum TipoFuente {
+    ESTATICA
+    DINAMICA
+    PROXY
+}
+
+' Clases de solicitud de eliminación
+class SolicitudDeEliminacion {
+    - fechaCreacion: LocalDateTime
+    - estadoAtencionSolicitud: EstadoAtencionSolicitud
+    - hecho: Hecho
+    - justificacion: String
+    - contribuyente: Contribuyente
+    - administradorResponsable: Administrador
+    - fechaResolucion: LocalDateTime
+    + marcarAceptada(responsable: Administrador): Void
+    + marcarRechazada(responsable: Administrador): Void
+}
+
+enum EstadoAtencionSolicitud {
+    PENDIENTE
+    RECHAZADA
+    ACEPTADA
+}
+
+' Clases de coleccion
+class Coleccion {
+    - handle: String
+    - titulo: String
+    - descripcion: String
+    - fuentes: List<Fuente>
+    - criterioDePertenencia: CriterioDePertenencia
+    - algoritmoDeConsenso :  TipoConsenso
+    + agregarFuente(fuente: Fuente): Void
+}
+
+class CriterioDePertenencia {
+    - filtros: List<Filtro>
+    + agregarFiltro(nuevoFiltro: Filtro): Void
+    + quitarFiltro(nuevoFiltro: Filtro): Void
+    + aplicar(hechos: List<Hecho>): Bool
+    + cumpleCon(hecho: Hecho): Bool
+}
+
+' Clase Hecho y relacionados
+class Hecho {
+    - fuente: Fuente
+    - titulo: String
+    - descripcion: String
+    - categoria: Categoria
+    - ubicacion: Ubicacion
+    - fechaDelHecho: LocalDate
+    - fechaDeCarga: LocalDateTime
+    - fechaUltimaModificacion: LocalDateTime
+    - contenido: Multimedia
+    - origen: TipoOrigen
+    - etiquetas: List<Etiqueta>
+    - consensos: Set<TipoConsenso>
+    - visible: Boolean
+    + agregarEtiqueta(nuevaEtiqueta: Etiqueta): void
+}
+
+enum TipoConsenso{
+    MULTIPLE_MENCION
+      MAYORIA_SIMPLE
+      ABSOLUTO
+}
+
+class Multimedia {
+    - tipoContenido: TipoContenido
+    - url: String
+}
+
+class Categoria {
+    - nombre: String
+}
+
+enum TipoContenido {
+    TEXTO
+    AUDIO
+    IMAGEN
+    VIDEO
+}
+
+class Ubicacion {
+    - latitud: Double
+    - longitud: Double
+    + distanciaA(lugar: Ubicacion): Double
+}
+
+class Etiqueta {
+    - nombre: String
+    - identificador: Long
+}
+
+enum TipoOrigen {
+    MANUAL
+    DATASET
+    CONTRIBUYENTE
+    EXTERNO
+}
+
+@enduml

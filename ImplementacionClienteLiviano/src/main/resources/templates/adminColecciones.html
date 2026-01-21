@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/logo.svg}">
+    <link rel="stylesheet" th:href="@{/css/common.css}"/>
+    <link rel="stylesheet" th:href="@{/css/styleAdminColecciones.css}"/>
+    <!-- Toast System y Notificaciones -->
+    <div th:replace="~{fragments/header :: toast-resources}"></div>
+    <title>MetaMapa - Administrar Colecciones</title>
+</head>
+
+<body>
+<!-- HEADER -->
+<header th:replace="~{fragments/header :: header}"></header>
+
+<main >
+    <section class="hero">
+        <h1>Administrar Colecciones</h1>
+        <div class="top-bar">
+            <input id="filtro" placeholder="Filtrar colecciones..." type="text"/>
+            <button class="btn-crear" id="btn-crear">+</button>
+        </div>
+
+        <!-- Lista renderizada dinámicamente -->
+        <div class="admin-lista" id="admin-lista">
+            <!-- Las colecciones se cargarán dinámicamente con JavaScript -->
+        </div>
+    </section>
+
+    <!-- Popup crear/editar -->
+    <div class="popup" id="popup-form">
+        <div class="popup-content popup-form-content">
+            <h2 id="popup-title">Nueva Colección</h2>
+
+            <form id="coleccionForm">
+                <div class="form-group">
+                    <label for="form-titulo">Título *</label>
+                    <input
+                        id="form-titulo"
+                        name="titulo"
+                        type="text"
+                        placeholder="Ej: Eventos Históricos Argentina"
+                        required
+                        maxlength="200"
+                    />
+                </div>
+
+                <div class="form-group">
+                    <label for="form-descripcion">Descripción *</label>
+                    <textarea
+                        id="form-descripcion"
+                        name="descripcion"
+                        placeholder="Describe brevemente el propósito de esta colección..."
+                        required
+                        rows="4"
+                        maxlength="1000"
+                    ></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Criterios de Pertenencia</label>
+                    <button class="btn-gestionar-filtros" id="btn-gestionar-filtros" type="button">
+                        <span>🔍</span> Gestionar Filtros
+                    </button>
+                    <span class="filtros-count" id="filtros-count">0 filtros configurados</span>
+                </div>
+
+                <div class="form-group">
+                    <label>Fuentes de Datos *</label>
+                    <small class="form-help">Seleccione las fuentes que utilizará esta colección</small>
+                    <div class="fuentes-container" id="fuentes-container">
+                        <div class="fuentes-search">
+                            <input type="text" id="fuentes-search-input" placeholder="🔍 Buscar fuentes..." />
+                            <div class="fuentes-actions">
+                                <button type="button" class="btn-select-all" id="btn-select-all">Seleccionar todas</button>
+                                <button type="button" class="btn-deselect-all" id="btn-deselect-all">Deseleccionar todas</button>
+                            </div>
+                        </div>
+                        <div class="fuentes-list" id="fuentes-list">
+                            <!-- Los checkboxes se generarán dinámicamente aquí -->
+                            <div th:each="f : ${fuentes}" class="fuente-item">
+                                <label class="fuente-checkbox-label">
+                                    <input
+                                        type="checkbox"
+                                        class="fuente-checkbox"
+                                        th:value="${f.identificador}"
+                                        th:data-tipo="${f.moduloFuente.tipo}"
+                                        th:data-nombre="${f.moduloFuente.tipo + ' ' + f.identificador}"
+                                    />
+                                    <span class="checkbox-custom"></span>
+                                    <div class="fuente-info">
+                                        <span class="fuente-tipo" th:text="${f.moduloFuente.tipo}">TIPO</span>
+                                        <span class="fuente-id" th:text="${f.identificador}">ID</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="fuentes-selected-count" id="fuentes-selected-count">
+                            <span>0 fuentes seleccionadas</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="form-algoritmo">Algoritmo de Consenso *</label>
+                    <select id="form-algoritmo" name="algoritmoConsenso" required>
+                        <option value="">Seleccione un algoritmo...</option>
+                        <option value="MULTIPLE_MENCION">Múltiple Mención</option>
+                        <option value="MAYORIA_SIMPLE">Mayoría Simple</option>
+                        <option value="ABSOLUTO">Absoluto</option>
+                    </select>
+                    <small class="form-help">Define cómo se validan los hechos en esta colección</small>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn-cancel-form" id="btn-cancel-form">Cancelar</button>
+                    <button type="submit" class="btn-submit">Guardar Colección</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Popup confirmación eliminar -->
+    <div class="popup" id="popup-confirm">
+        <div class="popup-content popup-confirm-content">
+            <div class="confirm-icon">⚠️</div>
+            <h2>¿Eliminar Colección?</h2>
+            <p>Esta acción no se puede deshacer. Se eliminará permanentemente la colección y todas sus configuraciones.</p>
+            <div class="confirm-actions">
+                <button class="btn-cancel" id="cancel-delete">Cancelar</button>
+                <button class="btn-delete" id="confirm-delete">Eliminar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Popup gestionar filtros -->
+    <div class="popup" id="popup-filtros">
+        <div class="popup-content popup-filtros-content">
+            <h2>Gestionar Filtros de Pertenencia</h2>
+            <p class="popup-subtitle">Define los criterios que determinarán qué hechos pertenecen a esta colección</p>
+
+            <div class="filtros-container">
+                <div class="filtros-lista" id="filtros-lista">
+                    <!-- Los filtros se agregarán dinámicamente aquí -->
+                </div>
+
+                <button class="btn-agregar-filtro" id="btn-agregar-filtro" type="button">
+                    <span>➕</span> Agregar Nuevo Filtro
+                </button>
+            </div>
+
+            <div class="filtros-actions">
+                <button class="btn-cancel" id="cancelar-filtros">Cancelar</button>
+                <button class="btn-confirmar" id="confirmar-filtros">Aceptar Filtros</button>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- FOOTER -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script th:src="@{/js/adminColecciones.js}"></script>
+<script th:src="@{/js/userMenu.js}"></script>
+</body>
+</html>

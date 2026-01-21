@@ -1,0 +1,127 @@
+version: '3.8'
+
+services:
+  # Servicio Agregador - Orquestador principal
+  agregador:
+    build: ./agregador
+    container_name: agregador
+    ports:
+      - "8083:8083"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8083/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://host.docker.internal:3306/ddsi_2025_mm_agregador?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - FUENTE_DINAMICA_URL=http://fuenteDinamica:8081
+      - FUENTE_ESTATICA_URL=http://fuenteEstatica:8080
+      - UMBRAL_SIMILITUD_CATEGORIA=${UMBRAL_SIMILITUD_CATEGORIA:-0.92}
+    depends_on:
+      - estadisticas
+      - fuenteDinamica
+      - fuenteEstatica
+      - fuenteProxy
+    networks:
+      - microservices-network
+
+  # Servicio de Estadísticas
+  estadisticas:
+    build: ./estadisticas
+    container_name: estadisticas
+    ports:
+      - "8084:8084"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8084/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://host.docker.internal:3306/ddsi_2025_mm_estadisticas?useSSL=false&serverTimezone=UTC&createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+    networks:
+      - microservices-network
+
+  # Fuente Dinámica - Contribuciones de usuarios
+  fuenteDinamica:
+    build: ./fuenteDinamica
+    container_name: fuenteDinamica
+    ports:
+      - "8081:8081"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://host.docker.internal:3306/ddsi_2025_mm_dinamica?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - UMBRAL_SIMILITUD_CATEGORIA=${UMBRAL_SIMILITUD_CATEGORIA:-0.92}
+    volumes:
+      - dinamica-uploads:/app/uploads
+    networks:
+      - microservices-network
+
+  # Fuente Estática - Importación de CSV
+  fuenteEstatica:
+    build: ./fuenteEstatica
+    container_name: fuenteEstatica
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://host.docker.internal:3306/ddsi_2025_mm_estatica?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - UMBRAL_SIMILITUD_CATEGORIA=${UMBRAL_SIMILITUD_CATEGORIA:-0.92}
+    volumes:
+      - estatica-uploads:/app/uploads/csv
+    networks:
+      - microservices-network
+
+  # Fuente Proxy - Integración con APIs externas
+  fuenteProxy:
+    build: ./fuenteProxy
+    container_name: fuenteProxy
+    ports:
+      - "8082:8082"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8082/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    environment:
+      - DESASTRESAPI_EMAIL=ddsi@gmail.com
+      - DESASTRESAPI_PASSWORD=ddsi2025*
+      - DESASTRESAPI_BASEURL=https://api-ddsi.disilab.ar/public/api
+    networks:
+      - microservices-network
+
+# Red compartida entre servicios
+networks:
+  microservices-network:
+    driver: bridge
+
+# Volúmenes persistentes para uploads
+volumes:
+  dinamica-uploads:
+  estatica-uploads:
+

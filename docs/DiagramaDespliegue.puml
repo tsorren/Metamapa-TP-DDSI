@@ -1,0 +1,139 @@
+@startuml DiagramaDespliegue
+!define RECTANGLE class
+
+skinparam node {
+    BackgroundColor #f5f5f5
+    BorderColor #333333
+}
+
+skinparam database {
+    BackgroundColor #FFD700
+    BorderColor #333333
+}
+
+skinparam component {
+    BackgroundColor #87CEEB
+    BorderColor #333333
+}
+
+skinparam cloud {
+    BackgroundColor #E6E6FA
+    BorderColor #333333
+}
+
+title Diagrama de Despliegue - Sistema MetaMapa en Railway
+
+cloud "Railway Platform" as railway {
+
+    ' ====== RED PRIVADA INTERNA ======
+    frame "Red Privada Interna (HTTP :8080)" as red_privada {
+
+        ' --- MICROSERVICIOS ---
+        node "Servicio Agregador\nagregador.railway.internal:8080" as nodo_agregador {
+            component "[Spring Boot]\nAgregador\n:8080" as agregador #orchid
+        }
+
+        node "Servicio Estadísticas\nestadisticas.railway.internal:8080" as nodo_estadisticas {
+            component "[Spring Boot]\nEstadísticas\n:8080" as estadisticas #lightgreen
+        }
+
+        node "Servicio Fuente Proxy\nfuente-proxy.railway.internal:8080" as nodo_proxy {
+            component "[Spring Boot]\nFuente Proxy\n:8080" as fuenteProxy #lightblue
+        }
+
+        node "Servicio Fuente Dinámica\nfuente-dinamica.railway.internal:8080" as nodo_dinamica {
+            component "[Spring Boot]\nFuente Dinámica\n:8080" as fuenteDinamica #pink
+        }
+
+        node "Servicio Fuente Estática\nfuente-estatica.railway.internal:8080" as nodo_estatica {
+            component "[Spring Boot]\nFuente Estática\n:8080" as fuenteEstatica #lightyellow
+        }
+
+        ' --- BASE DE DATOS COMPARTIDA ---
+        database "MySQL Database\n(Instancia Compartida)" as db_compartida {
+            storage "schema: ddsi_2025_mm_agregador" as schema_agregador #orange
+            storage "schema: ddsi_2025_mm_estadisticas" as schema_estadisticas #lightgreen
+            storage "schema: ddsi_2025_mm_dinamica" as schema_dinamica #pink
+            storage "schema: ddsi_2025_mm_estatica" as schema_estatica #lightyellow
+            storage "schema: ddsi_2025_mm_proxy" as schema_proxy #lightblue
+        }
+    }
+
+    ' --- CLIENTE LIVIANO (DOMINIO PÚBLICO) ---
+    node "Cliente Liviano (Frontend)\nclienteliviano.railway.internal:8080\n+ Dominio Público HTTPS" as nodo_cliente {
+        component "[Spring Boot + Thymeleaf]\nCliente Liviano\n:8080" as clienteLiviano #lightcoral
+    }
+}
+
+' ====== API EXTERNA ======
+cloud "Servicio Externo\n(API Externa)" as api_externa #gold
+
+' ====== OTRA INSTANCIA DE METAMAPA ======
+cloud "Otra Instancia MetaMapa\n(Conexión Recursiva)" as otra_instancia_metamapa #lightsteelblue {
+    component "[Agregador Externo]" as agregador_externo
+}
+
+' ====== USUARIO ======
+actor "Usuario" as usuario
+
+' ====== CONEXIONES DEL CLIENTE LIVIANO A MICROSERVICIOS (HTTP Interno) ======
+clienteLiviano -down-> agregador : <<HTTP>>\nDominio Privado
+clienteLiviano -down-> estadisticas : <<HTTP>>\nDominio Privado
+clienteLiviano -down-> fuenteProxy : <<HTTP>>\nDominio Privado
+clienteLiviano -down-> fuenteDinamica : <<HTTP>>\nDominio Privado
+clienteLiviano -down-> fuenteEstatica : <<HTTP>>\nDominio Privado
+
+' ====== CONEXIONES ENTRE MICROSERVICIOS (HTTP Interno) ======
+agregador -right-> fuenteDinamica : <<HTTP>>
+agregador -right-> fuenteEstatica : <<HTTP>>
+agregador -down-> fuenteProxy : <<HTTP>>
+agregador -left-> estadisticas : <<HTTP>>
+
+' ====== CONEXIONES A BASE DE DATOS (JPA/Hibernate) ======
+agregador -down-> schema_agregador : <<JPA/Hibernate>>
+estadisticas -down-> schema_estadisticas : <<JPA/Hibernate>>
+fuenteDinamica -down-> schema_dinamica : <<JPA/Hibernate>>
+fuenteEstatica -down-> schema_estatica : <<JPA/Hibernate>>
+fuenteProxy -down-> schema_proxy : <<JPA/Hibernate>>
+
+' ====== CONEXIÓN PROXY A SERVICIOS EXTERNOS ======
+fuenteProxy -right-> api_externa : <<HTTP/HTTPS>>\nAPI Externa
+fuenteProxy -right-> agregador_externo : <<HTTP/HTTPS>>\nConexión Recursiva
+
+' ====== CONEXIÓN USUARIO ======
+usuario -down-> clienteLiviano : <<HTTPS>>\nDominio Público
+
+' ====== NOTAS ======
+note right of railway
+    **Railway Platform**
+    - Todos los servicios en puerto 8080
+    - Cada servicio con dominio privado propio
+      (*.railway.internal:8080)
+    - Comunicación interna via HTTP
+    - Base de datos MySQL compartida
+end note
+
+note bottom of clienteLiviano
+    **Cliente Liviano**
+    - Frontend con Thymeleaf
+    - Dominio PÚBLICO (HTTPS) para usuarios
+    - Dominio PRIVADO para comunicación interna
+    - Consume APIs via dominios privados
+end note
+
+note right of fuenteProxy
+    **Fuente Proxy**
+    - Se conecta a APIs externas
+    - Conexión recursiva a otras
+      instancias de MetaMapa
+end note
+
+note bottom of db_compartida
+    **Base de Datos Compartida**
+    - Instancia única de MySQL en Railway
+    - Schemas separados por microservicio
+    - Aislamiento lógico de datos
+end note
+
+@enduml
+

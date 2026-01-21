@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security6">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/logo.svg}">
+    <title>MetaMapa</title>
+</head>
+<body>
+
+<!-- Fragment: Toast styles and scripts (incluir en el head de cada página) -->
+<th:block th:fragment="toast-resources">
+    <link rel="stylesheet" th:href="@{/css/toast.css}"/>
+    <link rel="stylesheet" th:href="@{/css/notificaciones.css}"/>
+    <script th:src="@{/js/toast.js}"></script>
+    <script th:src="@{/js/notificaciones.js}"></script>
+</th:block>
+
+
+<!-- Fragment: Header genérico con botón volver -->
+<header th:fragment="header" role="banner">
+    <a aria-label="Volver" class="back-arrow" href="javascript:window.history.back()">
+        <img th:src="@{/images/arrow.svg}" alt="Volver" class="arrow-icon"/>
+    </a>
+
+    <a th:href="@{/home}" class="logo-link" aria-label="Ir a página principal">
+        <img alt="MetaMapa logo" class="logo" th:src="@{/images/logo.svg}"/>
+    </a>
+
+    <div  class="header-right">
+        <!-- Notificaciones (estructura idéntica al menú de usuario) -->
+        <div sec:authorize="isAuthenticated()" class="notifications">
+            <button type="button" class="bell-btn" aria-label="Notificaciones">
+                <img alt="Notificaciones" class="bell-icon" th:src="@{/images/bell.svg}"/>
+                <span class="notifications-badge">0</span>
+            </button>
+
+            <!-- Dropdown de notificaciones -->
+            <div class="notifications-dropdown">
+                <div class="notifications-header">
+                    Notificaciones
+                </div>
+                <div class="notifications-list">
+                    <div class="notification-item loading">Cargando...</div>
+                </div>
+                <div class="notifications-footer">
+                    <a th:href="@{/notificaciones/todas}">
+                        Ver todas las notificaciones
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Perfil usuario (solo si está autenticado) -->
+        <div sec:authorize="isAuthenticated()" class="profile" id="user-profile">
+            <div class="profile-trigger">
+                <img alt="Avatar" class="avatar" th:src="@{/images/avatar.svg}"/>
+                <!-- Nombre de usuario desde Spring Security -->
+                <span id="user-name" th:text="${#authentication.name}">Usuario</span>
+                <span class="dropdown-arrow">▼</span>
+            </div>
+
+            <!-- Menú de usuario -->
+            <div class="user-menu">
+                <a class="menu-item" sec:authorize="hasRole('CONTRIBUYENTE')" th:href="@{/hechos-creados}">
+                    <img class="menu-icon" th:src="@{/images/edit.svg}" alt="Hechos">
+                    <span>Hechos Creados</span>
+                </a>
+                <hr class="menu-divider">
+
+                <!-- Logout seguro vía POST -->
+                <form th:action="@{/logout}" method="post">
+                    <button class="menu-item" type="submit">
+                        <img class="menu-icon" th:src="@{/images/logout.svg}" alt="Cerrar Sesión">
+                        <span>Cerrar Sesión</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Botones de login/registro (visible cuando NO está logueado) -->
+        <div class="buttons" id="auth-buttons">
+            <button sec:authorize="!isAuthenticated() or isAnonymous()" id="btn-login">Iniciar Sesión</button>
+            <button sec:authorize="!isAuthenticated() or isAnonymous()" id="btn-register">Registrarse</button>
+        </div>
+    </div>
+</header>
+
+<!-- Fragment: Popups de autenticación -->
+<div th:fragment="auth-popups">
+    <!-- POPUP LOGIN -->
+    <!--<div class="popup" id="popup-login">
+        <div class="popup-content">
+            <span class="close">&times;</span>
+            <h2>Iniciar Sesión</h2>
+            <label for="usuario-login">Nombre de usuario:</label>
+            <input id="usuario-login" placeholder="Escribe tu nombre de usuario" type="text">
+            <label for="password-login">Contraseña:</label>
+            <div class="password-field-wrapper">
+                <input id="password-login" placeholder="Ingresa tu contraseña" type="password">
+                <button type="button" class="toggle-password" data-target="password-login">
+                    <img th:src="@{/images/eye-closed.svg}" alt="Mostrar">
+                </button>
+            </div>
+            <button id="login-btn">Ingresar</button>
+            <a href="#" id="forgot-pass">¿Olvidaste tu contraseña?</a>
+        </div>
+    </div>-->
+
+    <!-- POPUP REGISTER -->
+    <!-- <div class="popup" id="popup-register">
+        <div class="popup-content">
+            <span class="close">&times;</span>
+            <h2>Crear una cuenta</h2>
+            <label for="usuario-register">Nombre de usuario:</label>
+            <input id="usuario-register" placeholder="Escribe un nombre de usuario" type="text">
+            <label for="email-register">Correo electrónico:</label>
+            <input id="email-register" placeholder="Ingresa tu correo electrónico" type="email">
+            <label for="password-register">Contraseña:</label>
+            <div class="password-field-wrapper">
+                <input id="password-register" placeholder="Crea una contraseña" type="password">
+                <button type="button" class="toggle-password" data-target="password-register">
+                    <img th:src="@{/images/eye-closed.svg}" alt="Mostrar">
+                </button>
+            </div>
+            <label for="password-repeat">Repite tu contraseña:</label>
+            <div class="password-field-wrapper">
+                <input id="password-repeat" placeholder="Repite la contraseña" type="password">
+                <button type="button" class="toggle-password" data-target="password-repeat">
+                    <img th:src="@{/images/eye-closed.svg}" alt="Mostrar">
+                </button>
+            </div>
+            <button id="register-btn">Registrarse</button>
+        </div>
+    </div> -->
+
+    <!-- POPUP FORGOT PASSWORD -->
+    <div class="popup" id="popup-forgot">
+        <div class="popup-content">
+            <span class="close">&times;</span>
+            <h2>Recuperar Contraseña</h2>
+            <label for="email-forgot">Correo electrónico:</label>
+            <input id="email-forgot" placeholder="Ingresa tu correo para recuperar la cuenta" type="email">
+            <button id="reset-btn">Confirmar</button>
+            <a href="#" id="back-to-login" style="display:block;margin-top:10px;">← Volver</a>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/js/userMenu.js}"></script>
+<script>
+    document.getElementById("logoutForm").addEventListener("submit", function() {
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("refresh_token");
+    });
+</script>
+</body>
+</html>

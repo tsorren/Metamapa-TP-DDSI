@@ -1,0 +1,101 @@
+
+/* ========================================
+   SISTEMA DE COLORES - TEMA AZUL
+   Paleta coherente basada en azul principal
+   ======================================== */
+
+:root {
+    /* ===== COLORES PRINCIPALES (Azul) ===== */
+    --primary-color: #2563eb;           /* Azul principal - Medium */
+    --primary-hover: #1d4ed8;           /* Azul hover - Más oscuro */
+    --primary-light: #3b82f6;           /* Azul claro */
+    --primary-lighter: #60a5fa;         /* Azul muy claro */
+    --primary-dark: #1e40af;            /* Azul oscuro */
+    --primary-darker: #1e3a8a;          /* Azul muy oscuro */
+    --primary-rgb: 37, 99, 235;         /* RGB del color principal */
+
+    /* ===== COLORES SECUNDARIOS (Azul desaturado) ===== */
+    --secondary-color: #475569;         /* Azul grisáceo */
+    --secondary-hover: #334155;         /* Azul grisáceo oscuro */
+    --secondary-light: #64748b;         /* Azul grisáceo claro */
+
+    /* ===== BACKGROUNDS (Tonos azulados sutiles) ===== */
+    --bg-primary: #f8fafc;              /* Fondo principal - Azul muy claro */
+    --bg-secondary: #f1f5f9;            /* Fondo secundario - Azul gris claro */
+    --bg-tertiary: #e2e8f0;             /* Fondo terciario - Azul gris */
+    --bg-white: #ffffff;                /* Blanco puro */
+    --bg-dark: #0f172a;                 /* Fondo oscuro azulado */
+
+    /* ===== TEXTOS ===== */
+    --text-primary: #1e293b;            /* Texto principal - Azul muy oscuro */
+    --text-secondary: #334155;          /* Texto secundario - Azul oscuro */
+    --text-muted: #64748b;              /* Texto apagado - Azul grisáceo */
+    --text-light: #94a3b8;              /* Texto claro - Azul gris claro */
+    --text-white: #ffffff;              /* Texto blanco */
+
+    /* ===== BORDES (Tonos azulados) ===== */
+    --border-light: #e2e8f0;            /* Border claro */
+    --border-medium: #cbd5e1;           /* Border medio */
+    --border-dark: #94a3b8;             /* Border oscuro */
+    --border-primary: #2563eb;          /* Border azul principal */
+
+    /* ===== SOMBRAS (Con tinte azul) ===== */
+    --shadow-sm: 0 1px 2px 0 rgba(37, 99, 235, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(37, 99, 235, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(37, 99, 235, 0.15);
+    --shadow-xl: 0 20px 25px -5px rgba(37, 99, 235, 0.2);
+
+    /* ===== ESTADOS (Alertas - mantienen colores semánticos) ===== */
+    --success-color: #10b981;           /* Verde para éxito */
+    --success-light: #d1fae5;           /* Verde claro */
+    --success-dark: #059669;            /* Verde oscuro */
+
+    --error-color: #ef4444;             /* Rojo para error */
+    --error-light: #fee2e2;             /* Rojo claro */
+    --error-dark: #dc2626;              /* Rojo oscuro */
+
+    --warning-color: #f59e0b;           /* Amarillo/naranja para warning */
+    --warning-light: #fef3c7;           /* Amarillo claro */
+    --warning-dark: #d97706;            /* Naranja oscuro */
+
+    --info-color: #3b82f6;              /* Azul para info */
+    --info-light: #dbeafe;              /* Azul claro */
+    --info-dark: #2563eb;               /* Azul oscuro */
+
+    /* ===== BOTONES ===== */
+    --btn-primary: var(--primary-color);
+    --btn-primary-hover: var(--primary-hover);
+    --btn-secondary: var(--secondary-color);
+    --btn-secondary-hover: var(--secondary-hover);
+
+    /* ===== GRADIENTES AZULES ===== */
+    --gradient-primary: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+    --gradient-secondary: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    --gradient-light: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+
+    /* ===== OPACIDADES ===== */
+    --opacity-hover: 0.9;
+    --opacity-disabled: 0.5;
+    --opacity-overlay: 0.6;
+
+    /* ===== TRANSICIONES ===== */
+    --transition-fast: 0.15s ease;
+    --transition-normal: 0.3s ease;
+    --transition-slow: 0.5s ease;
+
+    /* ===== ESPACIADOS ===== */
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+    --spacing-2xl: 48px;
+
+    /* ===== BORDER RADIUS ===== */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    --radius-full: 9999px;
+}
+

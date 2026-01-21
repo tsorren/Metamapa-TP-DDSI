@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión</title>
+    <link rel="stylesheet" href="/css/styleLogin.css">
+    <!-- Toast System -->
+    <link rel="stylesheet" href="/css/toast.css"/>
+    <script src="/js/toast.js"></script>
+</head>
+<body>
+<a aria-label="Volver" class="back-arrow" href="javascript:window.history.back()">
+    <img th:src="@{/images/arrow.svg}" alt="Volver" class="arrow-icon"/>
+</a>
+
+<div class="login-container">
+    <h2>Iniciar Sesión</h2>
+
+    <form th:action="@{/login}" method="post">
+        <label for="usuario-login">Nombre de usuario:</label>
+        <input type="text" id="usuario-login" name="username" placeholder="Escribe tu nombre de usuario" class="form-control" required autofocus>
+
+        <label for="password-login">Contraseña:</label>
+        <div class="password-container">
+            <input type="password" id="password-login" name="password"  placeholder="Ingresa tu contraseña" class="form-control" required>
+            <button type="button" class="toggle-password" data-target="password-login">
+                <img src="/images/eye.svg" alt="Mostrar contraseña">
+            </button>
+        </div>
+
+        <button type="submit" id="login-btn" class="btn btn-primary">Ingresar</button>
+        <a href="#" id="forgot-pass">¿Olvidaste tu contraseña?</a>
+    </form>
+
+    <div th:if="${param.error}" class="error-message">
+        <p>Usuario o contraseña incorrectos</p>
+    </div>
+
+    <!-- Mensaje de logout opcional -->
+    <div th:if="${param.logout}" class="logout-message">
+        <p>Sesión cerrada correctamente</p>
+    </div>
+</div>
+
+<script>
+    // Mostrar/ocultar contraseña
+    document.querySelector('.toggle-password').addEventListener('click', function() {
+        const target = document.getElementById(this.dataset.target);
+        const isPassword = target.type === 'password';
+        target.type = isPassword ? 'text' : 'password';
+        this.querySelector('img').src = isPassword ? '/images/eye-off.svg' : '/images/eye.svg';
+    });
+
+    document.getElementById("back-btn")?.addEventListener("click", async () =>{window.location.href = '/home'})
+</script>
+</body>
+</html>

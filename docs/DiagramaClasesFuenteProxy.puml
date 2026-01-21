@@ -1,0 +1,87 @@
+@startuml
+left to right direction
+
+FuenteProxy --> "*"Hecho
+
+Hecho --> Categoria
+Hecho --> Multimedia
+Hecho --> TipoOrigen
+Hecho --> Ubicacion
+Hecho --> "*"Etiqueta
+Multimedia --> TipoContenido
+
+
+together {
+    abstract class FuenteProxy {
+        # baseUrl: String
+        # api: WebClient
+        # tipo: TipoFuente
+        + {abstract} hechos(): List<Hecho>
+        + {abstract} hechoPorId(idHecho: Long): Hecho
+    }
+    class FuenteDesastres extends FuenteProxy {
+        - token: String
+        - perPage: Long
+        - login(email: String, password: String): String
+        + hechos(): List<Hecho>
+        + hechoPorId(idHecho: Long): Hecho
+    }
+    class FuenteMetamapa extends FuenteProxy {
+        + hechos(): List<Hecho>
+        + hechoPorId(idHecho: Long): Hecho
+    }
+}
+
+together {
+    class Hecho {
+         - titulo: String
+         - descripcion: String
+         - categoria: Categoria
+         - ubicacion: Ubicacion
+         - fechaDelHecho: LocalDateTime
+         - fechaDeCarga: LocalDateTime
+         - contenido: Multimedia
+         - origen: TipoOrigen
+         - etiquetas: Set<Etiqueta>
+         - visible: Boolean
+
+         + ocultar(): void
+         + agregarEtiqueta(): void
+    }
+
+    class Etiqueta{
+        - nombre: String
+    }
+
+    class Ubicacion{
+        - longitud: double
+        - latitud: double
+        + distanciaA(lugar: Ubicacion): double
+    }
+
+    class Multimedia {
+        - tipo: TipoContenido
+        - url: String
+    }
+
+    enum TipoContenido {
+        TEXTO,
+        AUDIO,
+        IMAGEN,
+        VIDEO
+    }
+
+    enum TipoOrigen {
+        MANUAL,
+        DATASET,
+        CONTRIBUYENTE,
+        EXTERNO
+    }
+
+    class Categoria {
+        - nombre: String
+    }
+}
+
+
+@enduml

@@ -1,0 +1,125 @@
+@startuml
+left to right direction
+
+FuenteDinamica --> "*"Hecho
+
+Hecho -up-> Categoria
+Hecho -up-> TipoOrigen
+Hecho -down-> Multimedia
+Hecho -down-> Ubicacion
+Hecho -left-> "*" Etiqueta
+
+Multimedia --> TipoContenido
+
+Contibuyente --> SolicitudDeCreacion
+Administrador --> SolicitudDeCreacion
+SolicitudDeCreacion --> Hecho
+SolicitudDeCreacion --> EstadoRevision
+EstadoRevision --> TipoEstadoRevision
+
+SolicitudDeCreacion --> Contibuyente
+EstadoRevision --> Administrador
+together {
+    class FuenteDinamica {
+        - hechosAsociados: List<Long>
+    }
+}
+
+together {
+    class Hecho {
+         - titulo: String
+         - descripcion: String
+         - categoria: Categoria
+         - ubicacion: Ubicacion
+         - fechaDelHecho: LocalDateTime
+         - fechaDeCarga: LocalDateTime
+         - contenido: Multimedia
+         - origen: TipoOrigen
+         - etiquetas: Set<Etiqueta>
+         - visible: Boolean
+
+         + ocultar(): void
+         + agregarEtiqueta(): void
+    }
+
+    class Etiqueta{
+        - nombre: String
+    }
+
+    class Ubicacion{
+        - longitud: double
+        - latitud: double
+        + distanciaA(lugar: Ubicacion): double
+    }
+
+    class Multimedia {
+        - tipo: TipoContenido
+        - url: String
+    }
+
+    enum TipoContenido {
+        TEXTO,
+        AUDIO,
+        IMAGEN,
+        VIDEO
+    }
+
+    enum TipoOrigen {
+        MANUAL,
+        DATASET,
+        CONTRIBUYENTE
+    }
+
+    class Categoria {
+        - nombre: String
+    }
+}
+
+class SolicitudDeCreacion{
+    - fechaCreacion: LocalDateTime
+    - estados: List<EstadoRevision>
+    - hecho: Hecho
+    - contribuyente: Contibuyente
+    + esEstadoFinal(tipoEstado: TipoEstadoRevision): Boolean
+    + procesar(administrador: Administrador, nuevoEstado: TipoEstadoRevision, feedback: String): Void
+    + estadoActual(): EstadoRevision
+    + cerrada(): Boolean
+    + ultimaFechaProcesamiento(): LocalDateTime
+    + estadoAnterior(): EstadoRevision
+}
+
+class SolicitudDeModificacion{
+    - fechaCreacion: LocalDateTime;
+    - estados : List<EstadoRevision>;
+    - hecho: Hecho;
+    - contribuyente: Contribuyente;
+}
+
+class EstadoRevision{
+    - tipoEstado: TipoEstadoRevision
+    - fechaResolucion: LocalDateTime
+    - administradorResponsable: Administrador
+    - feedback: String
+    + procesar(administradorResponsable: Administrador): Void
+    + fueProcesado(): Boolean
+}
+enum TipoEstadoRevision{
+    PENDIENTE,
+    RECHAZADA,
+    ACEPTADA,
+    PENDIENTE_DE_MODIFICACION
+}
+
+
+class Administrador{
+   - identificador: Long
+}
+class Contibuyente{
+   - nombre: String
+   - apellido: String
+   - edad: Integer
+   - hechosCreados: List<Hecho>
+
+    + agregarHecho(hecho: Hecho)
+}
+@enduml

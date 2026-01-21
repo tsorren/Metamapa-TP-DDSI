@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/logo.svg}">
+    <title>MetaMapa - Cargar Hecho</title>
+    <link href="https://unpkg.com/leaflet/dist/leaflet.css" rel="stylesheet"/>
+    <link rel="stylesheet" th:href="@{/css/variables.css}"/>
+    <link rel="stylesheet" th:href="@{/css/common.css}"/>
+    <link rel="stylesheet" th:href="@{/css/styleCargarHechos.css}"/>
+    <!-- Toast System y Notificaciones -->
+    <div th:replace="~{fragments/header :: toast-resources}"></div>
+</head>
+<body>
+<!-- ====== HEADER ====== -->
+<div th:replace="~{fragments/header :: header}"></div>
+
+<!-- ====== POPUPS LOGIN/REGISTER ====== -->
+<div th:replace="~{fragments/header :: auth-popups}"></div>
+
+<!-- ====== MAPA ====== -->
+<div id="map"></div>
+
+<!-- Botón flotante para cargar nuevo hecho -->
+<button class="add-button" id="addHechoBtn" title="Cargar hecho">+</button>
+
+<!-- Botón flotante para ver mis hechos -->
+<button class="toggle-my-hechos-btn" id="toggleMyHechosBtn" title="Ver mis hechos">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+        <circle cx="12" cy="12" r="3"></circle>
+    </svg>
+</button>
+
+<!-- Formulario emergente para nuevo hecho -->
+<div class="form-popup hidden" id="hechoForm">
+    <form class="form-content" id="hechoData" method="post" th:action="@{/hechos/crear}">
+        <input id="coordenadas" name="coordenadas" type="hidden"/>
+        <div class="form-header">
+            <h2>Nuevo Hecho</h2>
+            <button class="close-btn" id="cancelBtn" type="button">&times;</button>
+        </div>
+
+        <label for="titulo">Título</label>
+        <input id="titulo" name="titulo" required type="text"/>
+
+        <label for="descripcion">Descripción</label>
+        <textarea id="descripcion" name="descripcion"></textarea>
+
+        <label for="categoria">Categoría</label>
+        <input id="categoria" name="categoria" type="text"/>
+
+        <label for="fechaDelHecho">Fecha del hecho</label>
+        <input id="fechaDelHecho" name="fechaDelHecho" type="date"/>
+
+        <label for="tipoContenido">Tipo de Contenido Multimedia</label>
+        <select id="tipoContenido" name="tipoContenido">
+            <option value="">Sin contenido multimedia</option>
+            <option value="TEXTO">Texto</option>
+            <option value="IMAGEN">Imagen</option>
+            <option value="VIDEO">Video</option>
+            <option value="AUDIO">Audio</option>
+        </select>
+
+        <!-- Contenedor para archivos -->
+        <div id="contenedorArchivo" class="hidden">
+            <label for="archivoMultimedia">Archivo</label>
+            <input type="file" id="archivoMultimedia" accept="*/*">
+
+            <div id="file-info-hecho" class="file-info hidden">
+                <div class="file-details">
+                    <span id="file-name-hecho"></span>
+                    <button type="button" id="remove-file-hecho" class="remove-file">×</button>
+                </div>
+                <div class="progress-container">
+                    <div id="progress-bar-hecho" class="progress-bar"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contenedor para texto -->
+        <div id="contenedorTexto" class="hidden">
+            <label for="textoContenido">Contenido de Texto</label>
+            <textarea id="textoContenido" rows="4" placeholder="Ingrese el texto aquí..."></textarea>
+        </div>
+
+        <div class="form-actions">
+            <button class="btn-confirm" type="submit">✔ Confirmar</button>
+            <button class="btn-cancel" id="cancelBtn2" type="button">Cancelar</button>
+        </div>
+    </form>
+</div>
+
+<!-- JS de esta página -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script th:src="@{/js/toast.js}"></script>
+<script th:src="@{/js/passwordToggle.js}"></script>
+<script th:src="@{/js/auth.js}"></script>
+<script th:src="@{/js/cargarHechos.js}"></script>
+<script th:src="@{/js/userMenu.js}"></script>
+</body>
+</html>

@@ -1,0 +1,209 @@
+/* ====== IMPORTAR SISTEMA DE COLORES ====== */
+@import url('variables.css');
+
+/* ====== BASE ====== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ====== CONTENEDOR PRINCIPAL ====== */
+.importar-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+    padding: 40px 20px;
+}
+
+/* ====== FORMULARIO ====== */
+.popup-content {
+    background: var(--bg-white);
+    border-radius: 12px;
+    box-shadow: var(--shadow-lg);
+    max-width: 600px;
+    width: 100%;
+    padding: 30px 25px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.popup-header h2 {
+    font-size: 32px;
+    margin-bottom: 15px;
+    text-align: center;
+    color: black;
+}
+
+/* ====== DROP FILE ====== */
+.file-drop {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    border: 2px dashed #ccc;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: border-color 0.3s, background 0.3s;
+    text-align: center;
+    background: #fafafa;
+}
+
+.file-drop:hover {
+    border-color: #333;
+    background: #f5f5f5;
+}
+
+.file-drop img {
+    width: 60px;
+    margin-bottom: 15px;
+}
+
+.file-drop p {
+    font-size: 16px;
+    color: #555;
+}
+
+/* ====== FILE INFO ====== */
+.file-info {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.file-info.hidden{
+    display: none;
+}
+
+.file-details {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.file-details img.file-icon {
+    width: 30px;
+    margin-right: 10px;
+}
+
+.file-details span#file-name {
+    flex: 1;
+    font-size: 16px;
+    color: #333;
+}
+
+.file-details button.remove-file {
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: #999;
+    cursor: pointer;
+}
+
+.file-details button.remove-file:hover {
+    color: #333;
+}
+
+/* ====== PROGRESS BAR ====== */
+.progress-container {
+    height: 8px;
+    background: #eee;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    width: 0%;
+    background: #333;
+    transition: width 0.3s;
+}
+
+/* ====== FOOTER BOTONES ====== */
+.popup-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.btn-confirm, .btn-cancel {
+    padding: 12px 25px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+}
+
+.btn-confirm {
+    background: #333;
+    color: #fff;
+}
+
+.btn-confirm:hover {
+    background: #555;
+}
+
+.btn-cancel {
+    background: #eee;
+    color: #333;
+}
+
+.btn-cancel:hover {
+    background: #ddd;
+}
+
+/* ====== RESPONSIVE ====== */
+@media (max-width: 768px) {
+    .popup-content {
+        padding: 25px 20px;
+    }
+
+    .popup-header h2 {
+        font-size: 28px;
+    }
+
+    .file-drop {
+        padding: 30px;
+    }
+
+    .btn-confirm, .btn-cancel {
+        font-size: 15px;
+        padding: 10px 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .popup-content {
+        padding: 20px 15px;
+    }
+
+    .popup-header h2 {
+        font-size: 24px;
+    }
+
+    .file-drop {
+        padding: 25px;
+    }
+
+    .btn-confirm, .btn-cancel {
+        font-size: 14px;
+        padding: 8px 18px;
+    }
+}

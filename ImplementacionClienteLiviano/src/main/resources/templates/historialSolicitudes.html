@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/logo.svg}">
+    <title>MetaMapa - Historial de Solicitudes</title>
+    <link rel="stylesheet" th:href="@{/css/variables.css}"/>
+    <link rel="stylesheet" th:href="@{/css/common.css}"/>
+    <link rel="stylesheet" th:href="@{/css/styleHistorialSolicitudes.css}">
+    <!-- Toast System y Notificaciones -->
+    <div th:replace="~{fragments/header :: toast-resources}"></div>
+</head>
+<body>
+<!-- HEADER -->
+<div th:replace="~{fragments/header :: header}"></div>
+
+<!-- CONTENIDO -->
+<main class="historial-solicitudes">
+    <div class="header-container">
+        <h1>Historial Completo de Solicitudes</h1>
+        <p class="subtitle">Análisis y trazabilidad de todas las solicitudes procesadas en el sistema</p>
+    </div>
+
+    <!-- Botones de filtro por tipo -->
+    <div class="filtros-container">
+        <button class="filtro-btn active" data-tipo="todos">
+            <span class="icon">📋</span>
+            Todas las Solicitudes
+        </button>
+        <button class="filtro-btn" data-tipo="creacion">
+            <span class="icon">➕</span>
+            Creación
+        </button>
+        <button class="filtro-btn" data-tipo="modificacion">
+            <span class="icon">✏️</span>
+            Modificación
+        </button>
+        <button class="filtro-btn" data-tipo="eliminacion">
+            <span class="icon">🗑️</span>
+            Eliminación
+        </button>
+    </div>
+
+    <!-- Estadísticas generales -->
+    <div class="estadisticas-container">
+        <div class="estadistica-card">
+            <div class="stat-icon">📊</div>
+            <div class="stat-content">
+                <div class="stat-value" id="total-solicitudes">0</div>
+                <div class="stat-label">Total de Solicitudes</div>
+            </div>
+        </div>
+        <div class="estadistica-card">
+            <div class="stat-icon success">✓</div>
+            <div class="stat-content">
+                <div class="stat-value" id="total-aprobadas">0</div>
+                <div class="stat-label">Aprobadas</div>
+            </div>
+        </div>
+        <div class="estadistica-card">
+            <div class="stat-icon error">✗</div>
+            <div class="stat-content">
+                <div class="stat-value" id="total-rechazadas">0</div>
+                <div class="stat-label">Rechazadas</div>
+            </div>
+        </div>
+        <div class="estadistica-card">
+            <div class="stat-icon warning">⏳</div>
+            <div class="stat-content">
+                <div class="stat-value" id="total-pendientes">0</div>
+                <div class="stat-label">Pendientes</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenedor de solicitudes por tipo -->
+    <div class="solicitudes-container">
+        <!-- Sección de Creación -->
+        <section class="tipo-solicitud" id="seccion-creacion">
+            <div class="tipo-header">
+                <h2>
+                    <span class="tipo-icon">➕</span>
+                    Solicitudes de Creación
+                </h2>
+                <span class="contador-tipo" id="contador-creacion">0 solicitudes</span>
+            </div>
+
+            <div class="estados-tabs">
+                <button class="estado-tab active" data-estado-tipo="creacion" data-estado="todos">
+                    Todos los Estados
+                </button>
+                <button class="estado-tab" data-estado-tipo="creacion" data-estado="PENDIENTE">
+                    Pendiente
+                </button>
+                <button class="estado-tab" data-estado-tipo="creacion" data-estado="ACEPTADA">
+                    Aceptada
+                </button>
+                <button class="estado-tab" data-estado-tipo="creacion" data-estado="RECHAZADA">
+                    Rechazada
+                </button>
+                <button class="estado-tab" data-estado-tipo="creacion" data-estado="PENDIENTE_DE_MODIFICACION">
+                    Pend. Modificación
+                </button>
+            </div>
+
+            <div class="solicitudes-lista" id="lista-creacion">
+                <div class="loading">Cargando solicitudes...</div>
+            </div>
+        </section>
+
+        <!-- Sección de Modificación -->
+        <section class="tipo-solicitud" id="seccion-modificacion">
+            <div class="tipo-header">
+                <h2>
+                    <span class="tipo-icon">✏️</span>
+                    Solicitudes de Modificación
+                </h2>
+                <span class="contador-tipo" id="contador-modificacion">0 solicitudes</span>
+            </div>
+
+            <div class="estados-tabs">
+                <button class="estado-tab active" data-estado-tipo="modificacion" data-estado="todos">
+                    Todos los Estados
+                </button>
+                <button class="estado-tab" data-estado-tipo="modificacion" data-estado="PENDIENTE">
+                    Pendiente
+                </button>
+                <button class="estado-tab" data-estado-tipo="modificacion" data-estado="ACEPTADA">
+                    Aceptada
+                </button>
+                <button class="estado-tab" data-estado-tipo="modificacion" data-estado="RECHAZADA">
+                    Rechazada
+                </button>
+                <button class="estado-tab" data-estado-tipo="modificacion" data-estado="PENDIENTE_DE_MODIFICACION">
+                    Pend. Modificación
+                </button>
+            </div>
+
+            <div class="solicitudes-lista" id="lista-modificacion">
+                <div class="loading">Cargando solicitudes...</div>
+            </div>
+        </section>
+
+        <!-- Sección de Eliminación -->
+        <section class="tipo-solicitud" id="seccion-eliminacion">
+            <div class="tipo-header">
+                <h2>
+                    <span class="tipo-icon">🗑️</span>
+                    Solicitudes de Eliminación
+                </h2>
+                <span class="contador-tipo" id="contador-eliminacion">0 solicitudes</span>
+            </div>
+
+            <div class="estados-tabs">
+                <button class="estado-tab active" data-estado-tipo="eliminacion" data-estado="todos">
+                    Todos los Estados
+                </button>
+                <button class="estado-tab" data-estado-tipo="eliminacion" data-estado="PENDIENTE">
+                    Pendiente
+                </button>
+                <button class="estado-tab" data-estado-tipo="eliminacion" data-estado="ACEPTADA">
+                    Aceptada
+                </button>
+                <button class="estado-tab" data-estado-tipo="eliminacion" data-estado="RECHAZADA">
+                    Rechazada
+                </button>
+            </div>
+
+            <div class="solicitudes-lista" id="lista-eliminacion">
+                <div class="loading">Cargando solicitudes...</div>
+            </div>
+        </section>
+    </div>
+</main>
+
+<!-- Modal de detalle de solicitud -->
+<div class="modal" id="modal-detalle">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="modal-titulo">Detalle de Solicitud</h3>
+            <button class="modal-close" id="btn-cerrar-modal">&times;</button>
+        </div>
+        <div class="modal-body" id="modal-body">
+            <!-- Contenido dinámico -->
+        </div>
+    </div>
+</div>
+
+<!-- FOOTER -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<!-- JavaScript -->
+<script th:src="@{/js/historialSolicitudes.js}"></script>
+</body>
+</html>
+

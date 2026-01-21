@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Cuenta</title>
+    <link rel="stylesheet" href="/css/styleRegister.css">
+    <!-- Toast System -->
+    <link rel="stylesheet" href="/css/toast.css"/>
+    <script src="/js/toast.js"></script>
+</head>
+<body>
+<a aria-label="Volver" class="back-arrow" href="javascript:window.history.back()">
+    <img th:src="@{/images/arrow.svg}" alt="Volver" class="arrow-icon"/>
+</a>
+
+<div class="register-container">
+    <h2>Crear Cuenta</h2>
+        <label for="usuario-register">Nombre de usuario:</label>
+        <input type="text" id="usuario-register" name="username" placeholder="Escribe tu nombre de usuario" required autofocus>
+
+        <label for="usuario-email-register">Email de usuario:</label>
+        <input type="text" id="usuario-email-register" name="username" placeholder="Escribe tu direccion de email" required autofocus>
+
+        <label for="usuario-name-register">Nombre (Opcional):</label>
+        <input type="text" id="usuario-name-register" name="username" placeholder="Escribe tu nombre aqui ">
+
+        <label for="usuario-surname-register">Apellido (Opcional)</label>
+        <input type="text" id="usuario-surname-register" name="username" placeholder="Escribe tu apellido " >
+
+        <label for="usuario-edad-register"> Fecha de nacimiento (Opcional) </label>
+        <input type="date" id="usuario-edad-register" name="username" placeholder="Escribe tu fecha de Nacimiento">
+
+    <label for="password-register">Contraseña:</label>
+        <div class="password-container">
+            <input type="password" id="password-register" name="password"  placeholder="Ingresa tu contraseña" required>
+            <button type="button" class="toggle-password" data-target="password-register">
+                <img src="/images/eye.svg" alt="Mostrar contraseña">
+            </button>
+        </div>
+
+        <div class="password-requirements">
+            <p style="margin: 0.5rem 0; font-weight: bold;">La contraseña debe contener:</p>
+            <ul>
+                <li id="req-mayus" class="invalid">✗ Al menos una letra mayúscula</li>
+                <li id="req-minus" class="invalid">✗ Al menos una letra minúscula</li>
+                <li id="req-numero" class="invalid">✗ Al menos un número</li>
+                <li id="req-especial" class="invalid">✗ Al menos un carácter especial (@, !, #, $, %, etc.)</li>
+                <li id="req-longitud" class="invalid">✗ Mínimo 8 caracteres</li>
+            </ul>
+        </div>
+
+        <div class="password-container">
+            <input type="password" id="confirmed-password-register" name="confirmed-password"  placeholder="Confirmar contraseña" required>
+            <button type="button" class="toggle-password" data-target="confirmed-password-register">
+                <img src="/images/eye.svg" alt="Mostrar contraseña">
+            </button>
+        </div>
+
+        <button type="submit" id="register-btn" class="btn btn-primary">Registrarse</button>
+</div>
+
+<script th:src="@{/js/register.js}"></script>
+</body>
+</html>

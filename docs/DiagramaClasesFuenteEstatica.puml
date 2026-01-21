@@ -1,0 +1,74 @@
+@startuml
+left to right direction
+
+FuenteEstatica --> "*"Hecho
+
+Hecho -up-> Categoria
+Hecho -up-> TipoOrigen
+Hecho -down-> Multimedia
+Hecho -down-> Ubicacion
+Hecho -left-> "*" Etiqueta
+
+Multimedia --> TipoContenido
+
+
+class FuenteEstatica {
+    - ruta: Path
+    + importarHechos(lector: LectorCSV): List<Hecho>
+    - construirHecho(fila: HashMap<String, String>): Hecho
+}
+
+
+together {
+    class Hecho {
+         - titulo: String
+         - descripcion: String
+         - categoria: Categoria
+         - ubicacion: Ubicacion
+         - fechaDelHecho: LocalDateTime
+         - fechaDeCarga: LocalDateTime
+         - contenido: Multimedia
+         - origen: TipoOrigen
+         - etiquetas: List<Etiqueta>
+         - visible: Boolean
+
+         + ocultar(): void
+         + agregarEtiqueta(): void
+    }
+
+    class Etiqueta{
+        - nombre: String
+    }
+
+    class Ubicacion{
+        - longitud: double
+        - latitud: double
+        + distanciaA(lugar: Ubicacion): double
+    }
+
+    class Multimedia {
+        - tipo: TipoContenido
+        - url: String
+    }
+
+    enum TipoContenido {
+        TEXTO,
+        AUDIO,
+        IMAGEN,
+        VIDEO
+    }
+
+    enum TipoOrigen {
+        MANUAL,
+        DATASET,
+        CONTRIBUYENTE
+    }
+
+    class Categoria {
+        - nombre: String
+    }
+
+}
+
+
+@enduml

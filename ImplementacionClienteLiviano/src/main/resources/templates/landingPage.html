@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security6">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/logo.svg}">
+    <title>MetaMapa</title>
+    <link rel="stylesheet" th:href="@{/css/variables.css}">
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+    <!-- Toast System y Notificaciones (antes de styleLandingPage.css) -->
+    <div th:replace="~{fragments/header :: toast-resources}"></div>
+    <link rel="stylesheet" th:href="@{/css/styleLandingPage.css}">
+    <!-- Leaflet CSS -->
+    <link href="https://unpkg.com/leaflet/dist/leaflet.css" rel="stylesheet"/>
+</head>
+<body>
+<!-- HEADER ESPECÍFICO PARA LANDING PAGE -->
+<header role="banner">
+    <!-- Logo clickeable a la izquierda -->
+    <a th:href="@{/}" class="logo-link" aria-label="Ir a página principal">
+        <img alt="MetaMapa logo" class="logo" th:src="@{/images/logo.svg}"/>
+    </a>
+
+    <!-- Título centrado -->
+    <h1>MetaMapa</h1>
+
+    <div class="header-right">
+        <!-- Notificaciones (estructura idéntica al menú de usuario) -->
+        <div sec:authorize="isAuthenticated()" class="notifications">
+            <button type="button" class="bell-btn" aria-label="Notificaciones">
+                <img alt="Notificaciones" class="bell-icon" th:src="@{/images/bell.svg}"/>
+                <span class="notifications-badge">0</span>
+            </button>
+
+            <!-- Dropdown de notificaciones -->
+            <div class="notifications-dropdown">
+                <div class="notifications-header">
+                    Notificaciones
+                </div>
+                <div class="notifications-list">
+                    <div class="notification-item loading">Cargando...</div>
+                </div>
+                <div class="notifications-footer">
+                    <a th:href="@{/notificaciones/todas}">
+                        Ver todas las notificaciones
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Perfil usuario (solo si está autenticado) -->
+        <div sec:authorize="isAuthenticated()" class="profile" id="user-profile">
+            <div class="profile-trigger">
+                <img alt="Avatar" class="avatar" th:src="@{/images/avatar.svg}"/>
+                <!-- Nombre de usuario desde Spring Security -->
+                <span id="user-name" th:text="${#authentication.name}">Usuario</span>
+                <span class="dropdown-arrow">▼</span>
+            </div>
+
+            <!-- Menú de usuario -->
+            <div class="user-menu">
+                <a class="menu-item" sec:authorize="hasRole('CONTRIBUYENTE')" th:href="@{/hechos-creados}">
+                    <img class="menu-icon" th:src="@{/images/edit.svg}" alt="Hechos">
+                    <span>Hechos Creados</span>
+                </a>
+                <hr class="menu-divider">
+
+                <!-- Logout seguro vía POST -->
+                <form th:action="@{/logout}" method="post">
+                    <button class="menu-item" type="submit">
+                        <img class="menu-icon" th:src="@{/images/logout.svg}" alt="Cerrar Sesión">
+                        <span>Cerrar Sesión</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Botones de login/registro (visible cuando NO está logueado) -->
+        <div class="buttons" id="auth-buttons">
+            <button sec:authorize="!isAuthenticated() or isAnonymous()" id="btn-login">Iniciar Sesión</button>
+            <button sec:authorize="!isAuthenticated() or isAnonymous()" id="btn-register">Registrarse</button>
+        </div>
+    </div>
+</header>
+
+<!-- HERO MAP -->
+<section class="hero">
+    <h2>Descubre lo que está pasando en el mundo</h2>
+    <div class="arrow">⬇</div>
+</section>
+
+<!-- ESPACIO GRIS -->
+<div class="spacer"></div>
+
+<!-- POP UPS DE AUTENTICACIÓN -->
+<div th:replace="~{fragments/header :: auth-popups}"></div>
+
+<!-- MODAL/POPUP PARA VER DETALLES DEL HECHO -->
+<div class="popup-overlay" id="hechoPopupOverlay"></div>
+<div class="popup-hecho hidden" id="hechoPopup">
+    <button class="cerrar-popup-hecho" id="cerrarHechoPopup">✖</button>
+    <h2 id="hechoTitulo">Título del Hecho</h2>
+
+    <div class="hecho-detalle">
+        <p><strong>Descripción:</strong></p>
+        <p id="hechoDescripcion" class="hecho-descripcion-text">---</p>
+
+        <p><strong>Categoría:</strong> <span id="hechoCategoria">---</span></p>
+        <p><strong>Ubicación:</strong> <span id="hechoUbicacion">---</span></p>
+        <p><strong>Fecha del hecho:</strong> <span id="hechoFechaHecho">---</span></p>
+        <p><strong>Fecha de carga:</strong> <span id="hechoFechaCarga">---</span></p>
+        <p><strong>Fuente:</strong> <span id="hechoFuente">---</span></p>
+        <p><strong>Origen:</strong> <span id="hechoOrigen">---</span></p>
+        <p><strong>Etiquetas:</strong> <span id="hechoEtiquetas">---</span></p>
+
+        <div class="hecho-multimedia">
+            <p><strong>Contenido Multimedia:</strong></p>
+            <div id="hechoMultimedia">---</div>
+        </div>
+    </div>
+
+    <div class="popup-actions">
+        <button class="btn-ver-en-mapa" id="btnVerEnMapa">Ver en Mapa</button>
+    </div>
+</div>
+
+<!-- FEATURES / INFORMACIÓN -->
+<section class="features">
+    <div class="feature">
+        <img th:src="@{/images/map.svg}" alt="Mapa" class="icon map-icon">
+        <p>Compartí y descubrí información en tiempo real</p>
+    </div>
+
+    <div class="feature">
+        <img th:src="@{/images/lock.svg}" alt="Candado" class="icon lock-icon">
+        <p>Plataforma de código abierto para mayor transparencia</p>
+    </div>
+
+    <div class="feature">
+        <img th:src="@{/images/users.svg}" alt="Usuarios" class="icon users-icon">
+        <p>Conocimiento colectivo: ONGs, universidades y comunidades colaborando</p>
+    </div>
+
+    <div class="feature">
+        <img th:src="@{/images/pen.svg}" alt="Lápiz" class="icon pen-icon">
+        <p>Crea, edita y subi tus propios hechos</p>
+    </div>
+
+    <div class="feature">
+        <img th:src="@{/images/shield.svg}" alt="Escudo" class="icon shield-icon">
+        <p>Protección de identidad: contribuí de forma anónima o registrada</p>
+    </div>
+</section>
+
+<!-- ESPACIO GRIS -->
+<div class="spacer"></div>
+
+<!-- EXPLORA CON CARRUSEL DE COLECCIONES -->
+<section class="explora" th:if="${colecciones != null and !#lists.isEmpty(colecciones)}">
+    <h2>Explora Nuestras Colecciones</h2>
+    <p class="explora-subtitle">Descubre información geolocalizada sobre eventos de tu interés</p>
+
+    <!-- Carrusel de Colecciones -->
+    <div class="carousel-container">
+        <div class="carousel-content">
+            <!-- Tarjeta de Colección Mejorada -->
+            <div class="card collection-carousel-card collection-destacada">
+                <div class="collection-header">
+                    <h2 id="collection-title">Cargando...</h2>
+                    <span class="hechos-badge" id="hechos-count-badge">
+                        <span id="hechos-count">0</span> hechos
+                    </span>
+                </div>
+                <p class="collection-description">
+                    <span id="collection-description">---</span>
+                </p>
+
+                <!-- Mapa prominente -->
+                <div id="carousel-map" class="map collection-map"></div>
+
+                <p class="map-hint">
+                    <span class="hint-icon">💡</span>
+                    Haz clic en los marcadores del mapa para ver los detalles de cada hecho
+                </p>
+            </div>
+            <!-- Los indicadores se generan dinámicamente -->
+        </div>
+    </div>
+
+    <button class="start-btn" onclick="startNavigation()">Comenzar a Navegar</button>
+</section>
+
+<!-- Mensaje cuando no hay colecciones (AHORA CON COLECCIÓN DE EJEMPLO) -->
+<section class="explora" th:if="${colecciones == null or #lists.isEmpty(colecciones)}">
+    <h2>Explora</h2>
+    <p class="explora-subtitle">Descubre información geolocalizada sobre eventos de tu interés</p>
+
+    <!-- Card de Colección de Ejemplo -->
+    <div class="card collection-carousel-card collection-destacada collection-ejemplo">
+        <div class="collection-header">
+            <h2>Incendios en Bariloche</h2>
+            <span class="hechos-badge">4 hechos</span>
+        </div>
+        <p class="collection-description">
+            Colección de ejemplo que muestra incendios registrados en la zona de Bariloche
+        </p>
+
+        <!-- Mapa de ejemplo -->
+        <div id="ejemplo-map" class="map collection-map"></div>
+
+        <p class="map-hint">
+            <span class="hint-icon">💡</span>
+            Haz clic en los marcadores del mapa para ver los detalles de cada hecho
+        </p>
+    </div>
+
+    <p class="ejemplo-disclaimer">
+        <i>Esta es una colección de ejemplo. Inicia los servicios del backend para ver datos reales.</i>
+    </p>
+
+    <button class="start-btn" onclick="startNavigation()">Comenzar a Navegar</button>
+</section>
+
+<!-- Script para inicializar mapa de ejemplo -->
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    document.addEventListener("DOMContentLoaded", function() {
+        const ejemploMapDiv = document.getElementById('ejemplo-map');
+        if (ejemploMapDiv && !ejemploMapDiv._leaflet_id) {
+            // Crear mapa centrado en Bariloche
+            const map = L.map('ejemplo-map').setView([-41.1335, -71.3103], 13);
+
+            // Agregar tiles
+            L.tileLayer(
+                'https://api.maptiler.com/maps/streets/{z}/{x}/{y}.png?key=lsLLHrc2xX9ejIqZplai',
+                {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                    maxZoom: 20
+                }
+            ).addTo(map);
+
+            // Marcadores de ejemplo
+            const marcadores = [
+                { coords: [-41.1335, -71.3103], titulo: 'Incendio en Hotel', descripcion: 'Incendio registrado en zona céntrica' },
+                { coords: [-41.1400, -71.3050], titulo: 'Incendio en Comisaría', descripcion: 'Siniestro en dependencia policial' },
+                { coords: [-41.1280, -71.3200], titulo: 'Incendio en Iglesia', descripcion: 'Incendio en edificio histórico' },
+                { coords: [-41.1380, -71.2980], titulo: 'Incendio en Bar', descripcion: 'Incendio en local comercial' }
+            ];
+
+            marcadores.forEach(m => {
+                L.marker(m.coords).addTo(map)
+                    .bindPopup(`
+                        <div style="min-width: 180px;">
+                            <b style="font-size: 15px; color: #333;">${m.titulo}</b>
+                            <p style="margin: 8px 0 0 0; color: #666; font-size: 13px;">${m.descripcion}</p>
+                        </div>
+                    `);
+            });
+        }
+    });
+    /*]]>*/
+</script>
+
+<!-- Script con datos de colecciones -->
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    // Combinar información de colecciones con sus hechos
+    const colecciones = /*[[${colecciones}]]*/ [];
+    const hechos = /*[[${hechos}]]*/ [];
+
+    // Transformar hechos para agregar lat/lng desde ubicacion
+    const hechosTransformados = hechos.map(hecho => {
+        return {
+            ...hecho,
+            lat: hecho.ubicacion?.latitud,
+            lng: hecho.ubicacion?.longitud
+        };
+    });
+
+    // Agregar hechos transformados a la primera colección (que es la destacada)
+    if (colecciones.length > 0 && hechosTransformados.length > 0) {
+        colecciones[0].hechos = hechosTransformados;
+    }
+
+    window.coleccionesData = colecciones;
+
+    // Logs comentados para producción
+    // console.log('📦 Colecciones cargadas:', colecciones.length);
+    // console.log('📍 Hechos cargados:', hechosTransformados.length);
+    // if (colecciones.length > 0) {
+    //     console.log('✅ Colección destacada:', colecciones[0].titulo);
+    //     console.log('📋 Hechos en colección:', colecciones[0].hechos?.length || 0);
+    // }
+    /*]]>*/
+</script>
+
+
+<!-- FOOTER -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<!-- Scripts propios -->
+<script th:src="@{/js/passwordToggle.js}"></script>
+<script th:src="@{/js/scripts.js}"></script>
+<script th:src="@{/js/auth.js}"></script>
+<script th:src="@{/js/userMenu.js}"></script>
+<!-- notificaciones.js ya se carga en toast-resources (head) -->
+
+</body>
+</html>

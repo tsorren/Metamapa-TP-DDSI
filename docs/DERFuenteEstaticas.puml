@@ -1,0 +1,59 @@
+@startuml
+!theme plain
+
+entity Hecho{
+--PK--
+    id (bigint)
+--FK--
+    fuente_id (bigint)
+    categoria_id (bigint)
+    contenido_id (bigint)
+    etiqueta_id (bigint)
+--
+    titulo (nvarchar(255))
+    descripcion (nvarchar(255))
+    latitud (decimal(18,2))
+    longitud (decimal(18,2)
+    fechaDelHecho (dateTime2(6))
+    fechaDeCarga (dateTime2(6))
+    fechaUltimaModificacion (dateTime2(6))
+    origen (nvarchar(15)
+    visible (bool)
+}
+
+entity Categoria{
+    --PK--
+    id (bigint)
+    --
+    nombre (nvarchar(255))
+}
+
+entity Etiqueta{
+    --PK--
+    id (bigint)
+    --
+    nombre (nvarchar(255))
+}
+
+entity Multimedia{
+    --PK--
+    id (bigint)
+    --
+    tipo_contenido (nvarchar(7))
+    url (nvarchar(255))
+}
+
+Hecho |o--|| Categoria
+Hecho }o--o{ Etiqueta
+Hecho ||--o| Multimedia
+
+entity Fuente{
+    --PK--
+    identificador (bigint)
+    --
+     fechaDeCreacion (dateTime2(6))
+}
+Hecho }o--|| Fuente
+
+
+@enduml

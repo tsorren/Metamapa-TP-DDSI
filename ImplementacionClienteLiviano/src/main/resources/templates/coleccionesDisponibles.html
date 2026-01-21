@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/logo.svg}">
+    <title>MetaMapa - Colecciones Disponibles</title>
+    <link rel="stylesheet" th:href="@{/css/variables.css}"/>
+    <link rel="stylesheet" th:href="@{/css/common.css}"/>
+    <link rel="stylesheet" th:href="@{/css/styleColecciones.css}"/>
+    <!-- Toast System y Notificaciones -->
+    <div th:replace="~{fragments/header :: toast-resources}"></div>
+</head>
+<body>
+<!-- HEADER -->
+<div th:replace="~{fragments/header :: header}"></div>
+
+<!-- POPUPS -->
+<div th:replace="~{fragments/header :: auth-popups}"></div>
+<main role="main">
+    <section class="hero">
+        <h1>Colecciones Disponibles</h1>
+
+        <!-- Mensaje si no hay colecciones -->
+        <div style="text-align: center; padding: 40px; color: #666;"
+             th:if="${colecciones == null or colecciones.isEmpty()}">
+            <p>No hay colecciones disponibles en este momento.</p>
+        </div>
+
+        <!-- Lista de colecciones -->
+        <div class="acordeon" id="colecciones-lista">
+            <details th:each="coleccion : ${colecciones}">
+                <summary th:text="${coleccion.titulo}">Título de la colección</summary>
+
+                <!-- Descripción -->
+                <p th:if="${coleccion.descripcion != null and !coleccion.descripcion.isEmpty()}"
+                   th:text="${coleccion.descripcion}">
+                    Descripción de la colección
+                </p>
+
+                <!-- Botón "Ver en el mapa" -->
+                <button onclick="window.location.href='visualizarHechos?coleccion=' + this.getAttribute('data-coleccion')"
+                        style="margin-top: 5px;"
+                        th:data-coleccion="${coleccion.handle}">
+                    Ver en el mapa
+                </button>
+            </details>
+        </div>
+    </section>
+</main>
+
+<!-- FOOTER -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script th:src="@{/js/passwordToggle.js}"></script>
+<script th:src="@{/js/coleccionesDiponibles.js}"></script>
+<script th:src="@{/js/auth.js}"></script>
+<script th:src="@{/js/userMenu.js}"></script>
+</body>
+</html>

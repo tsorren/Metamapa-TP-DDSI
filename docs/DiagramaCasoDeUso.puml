@@ -1,0 +1,53 @@
+@startuml
+
+left to right direction
+
+actor Administrador as administrador
+actor Contribuyente as contribuyente
+actor Visualizador as visualizador
+
+
+
+rectangle "Sistema" {
+      usecase "Consultar Hechos" as CU1
+      usecase "Filtrar Hechos" as CU2
+      usecase "Cargar Hecho" as CU3
+      usecase "Generar Solicitud de Creación" as CU4
+      usecase "Solicitar Eliminación de Hecho" as CU5
+      usecase "Solicitar Modificación de Hecho" as CU6
+
+    usecase "Importar Hechos" as CU7
+    usecase "Crear Colección" as CU8
+    usecase "Eliminar Colección" as CU9
+    usecase "Modificar Colección" as CU10
+    usecase "Etiquetar Hecho" as CU11
+    usecase "Procesar Solicitud de Eliminacion" as CU12
+    usecase "Procesar Solcitud de Creación" as CU13
+    usecase "Procesar Solcitud de Modificación" as CU14
+}
+
+visualizador -down-> CU1
+visualizador -down-> CU3
+
+contribuyente -down--> CU1
+contribuyente -down--> CU3
+contribuyente -down--> CU5
+contribuyente -left--> CU6
+
+administrador -up--> CU7
+administrador -up--> CU11
+administrador -up--> CU8
+administrador -up--> CU1
+administrador -up--> CU3
+administrador -up--> CU12
+administrador -up--> CU13
+administrador -up--> CU14
+administrador -up--> CU9
+administrador -up--> CU10
+
+CU1 <. CU2 :<extend>
+CU3 <. CU4 :<extend>
+
+
+
+@enduml

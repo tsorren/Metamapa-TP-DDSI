@@ -1,0 +1,138 @@
+@startuml
+!theme plain
+
+entity Hecho{
+--PK--
+    identificador (bigint)
+--FK--
+    fuente_id (bigint)
+    categoria_id (bigint)
+    contenido_id (bigint)
+    etiqueta_id (bigint)
+--
+    identificadorExterno (bigint)
+    titulo (nvarchar(255))
+    descripcion (nvarchar(255))
+    latitud (decimal(18,2))
+    longitud (decimal(18,2)
+    fechaDelHecho (dateTime2(6))
+    fechaDeCarga (dateTime2(6))
+    fechaUltimaModificacion (dateTime2(6))
+    origen (nvarchar(15)
+    consenso (nvarchar(20))
+    visible (bool)
+}
+
+entity Categoria{
+    --PK--
+    id (bigint)
+    --
+    nombre (nvarchar(255))
+}
+
+entity Etiqueta{
+    --PK--
+    id (bigint)
+    --
+    nombre (nvarchar(255))
+}
+
+entity Multimedia{
+    --PK--
+    id (bigint)
+    --
+    tipo_contenido (nvarchar(7))
+    url (nvarchar(255))
+}
+
+Hecho |o--|| Categoria
+Hecho }o--o{ Etiqueta
+Hecho ||--o| Multimedia
+
+entity Fuente{
+--PK--
+identificador (bigint)
+--FK--
+modulo_id (bigint)
+--
+     fechaDeCreacion (dateTime2(6))
+}
+
+entity Modulo{
+    --PK--
+    identificador (bigint)
+    --
+    tipo (nvarchar(8))
+    baseUrl (nvarchar(255))
+}
+
+Fuente }|--|| Modulo
+Hecho }|--|| Fuente
+
+entity Coleccion{
+    --PK--
+    id (bigint)
+    --FK--
+    fuente_id (bigint))
+    criterioDePertenencia_id
+    --
+    handle (nvarchar(255))
+    titulo (nvarchar(255))
+    descripcion (nvarchar(255))
+    algoritmoConsenso (nvarchar(20))
+}
+
+entity Criterio_de_Pertenencia {
+    --PK--
+    id (bigint))
+    --FK--
+    filtro_id (bigint)
+}
+
+entity Filtro {
+    --PK--
+    id (bigint)
+    --
+    tipo (nvarchar(255))
+
+}
+
+Coleccion }o--|{ Fuente
+Coleccion }|--||Criterio_de_Pertenencia
+Criterio_de_Pertenencia }|--|{Filtro
+
+entity Administrador{
+    --PK--
+    id (bigint)
+}
+
+entity Contribuyente{
+    --PK--
+    id (bigint)
+    --
+    nombre (nvarchar(255))
+    apellido (nvarchar(255))
+    edad int
+}
+
+entity Solicitud_de_Eliminacion{
+    --PK--
+    id (bigint)
+    --FK--
+    hecho_id (bigint)
+    contribuyente_id (bigint)
+    administradorResponsable_id (bigint))
+    --
+    fechaCreacion (dateTime2(6)
+    estadoAtencionSolicitud (nvarchar(10))
+    justificacion (nvarchar(255))
+    fechaResolucion (dateTime2(6)
+    justificacionRechazo (nvarchar(255))
+}
+
+Solicitud_de_Eliminacion }o--|| Hecho
+Solicitud_de_Eliminacion ||--|| Contribuyente
+Solicitud_de_Eliminacion |o--|| Administrador
+
+
+@enduml

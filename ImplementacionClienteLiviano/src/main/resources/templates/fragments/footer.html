@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/logo.svg}">
+    <title>MetaMapa</title>
+</head>
+<body>
+
+<!-- Fragment: Footer genérico -->
+<footer th:fragment="footer" role="contentinfo">
+    <img alt="Logo MetaMapa" class="footer-logo" th:src="@{/images/logo.svg}"/>
+
+    <p>
+        <strong>Información legal y de privacidad</strong><br>
+        MetaMapa es una plataforma de código abierto orientada a la recopilación,
+        organización y visibilización de información de interés social.
+        La identidad de los contribuyentes está protegida: no se recopilan datos personales de quienes solo consultan la
+        información disponible,
+        y los aportes pueden realizarse de forma anónima o registrada. La información publicada es responsabilidad de
+        cada instancia y puede provenir de fuentes estáticas,
+        dinámicas o externas, priorizando siempre la transparencia, la seguridad y la disponibilidad de los datos.
+    </p>
+    <br>
+    <p>
+        <strong>Copyright © 2025 MetaMapa.</strong><br>
+        El software se distribuye bajo licencia de código abierto [indicar licencia: MIT/GPL/Apache].
+        El contenido aportado por los usuarios pertenece a sus respectivos autores, y se comparte bajo los términos que
+        cada instancia de MetaMapa defina.
+        Está prohibida la reproducción o uso indebido del material sin autorización expresa de los titulares
+        correspondientes.
+    </p>
+
+    <a aria-label="Abrir repositorio de MetaMapa en GitHub"
+       class="github-link"
+       href="https://github.com/dds-utn/2025-tpa-ma-ma-grupo-25"
+       rel="noopener noreferrer"
+       target="_blank">
+        <img alt="GitHub" class="github-icon" th:src="@{/images/github.svg}"/>
+    </a>
+</footer>
+
+</body>
+</html>
+

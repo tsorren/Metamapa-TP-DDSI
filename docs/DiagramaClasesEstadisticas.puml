@@ -1,0 +1,134 @@
+@startuml
+title Diagrama de Clases - Estadísticas y Entidades Relacionadas
+
+' === ENTIDADES DE ESTADÍSTICAS ===
+class CategoriaEstadistica {
+  - Long id
+  - String categoria
+  - Long cantidadHechos
+  - LocalDateTime fechaCalculo
+}
+
+class HechoProcesado {
+  - Long id
+  - String categoria
+  - String provincia
+  - LocalDateTime fechaHora
+  + HechoProcesado(String categoria, String provincia, LocalDateTime fechaHora)
+  + static HechoProcesado desdeDTO(HechoInputDTO dto, GeocodingService geo)
+}
+
+class HoraCategoriaEstadistica {
+  - Long id
+  - String categoria
+  - int horaDelDia
+  - Long cantidadHechos
+  - LocalDateTime fechaCalculo
+}
+
+class ProvinciaCategoriaEstadistica {
+  - Long id
+  - String categoria
+  - String provincia
+  - Long cantidadHechos
+  - LocalDateTime fechaCalculo
+}
+
+class ProvinciaEstadistica {
+  - Long id
+  - String coleccion
+  - String provincia
+  - Long cantidadHechos
+  - LocalDateTime fechaCalculo
+}
+
+class SolicitudSpamEstadistica {
+  - Long id
+  - Long cantidadSpam
+  - LocalDateTime fechaCalculo
+}
+
+' === CLASES DE APOYO ===
+class Categoria {
+  - Long id
+  - String nombre
+}
+
+class Etiqueta {
+  - Long id
+  - String nombre
+}
+
+class Fuente {
+  - Long id
+  - LocalDateTime fechaDeCreacion
+}
+
+class Hecho {
+  - Long id
+  - Long idExterno
+  - String titulo
+  - String descripcion
+  - LocalDate fechaDelHecho
+  - LocalDateTime fechaDeCarga
+  - LocalDateTime fechaUltimaModificacion
+  - Boolean visible
+  - Set<TipoConsenso> consensos
+  + static Hecho crear(...)
+  + void agregarEtiqueta(Etiqueta e)
+  + void curar(TipoConsenso c)
+  + void quitarCurado()
+  + boolean cumple(TipoConsenso c)
+  + boolean tieneMismosAtributos(Hecho h)
+}
+
+class Multimedia {
+  - Long id
+  - TipoContenido tipoContenido
+  - String url
+}
+
+class Ubicacion {
+  - Double latitud
+  - Double longitud
+  + Double distanciaA(Ubicacion lugar)
+}
+
+' === ENUMS ===
+enum TipoConsenso {
+  MULTIPLE_MENCION
+  MAYORIA_SIMPLE
+  ABSOLUTO
+}
+
+enum TipoContenido {
+  TEXTO
+  AUDIO
+  IMAGEN
+  VIDEO
+}
+
+enum TipoOrigen {
+  MANUAL
+  DATASET
+  CONTRIBUYENTE
+  EXTERNO
+}
+
+' === RELACIONES ===
+Hecho --> Categoria : pertenece a >
+Hecho --> Fuente : proviene de >
+Hecho --> Multimedia : contiene >
+Hecho --> Etiqueta : usa >
+Hecho --> Ubicacion : tiene >
+Hecho --> TipoConsenso : * consensos
+Hecho --> TipoOrigen : origen
+
+HechoProcesado --> GeocodingService : usa >
+HechoProcesado --> HechoInputDTO : crea desde >
+
+ProvinciaCategoriaEstadistica --> Categoria : categoría >
+HoraCategoriaEstadistica --> Categoria : categoría >
+CategoriaEstadistica --> Categoria : categoría >
+
+@enduml

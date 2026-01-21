@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/logo.svg}">
+    <title>MetaMapa - Panel de Control</title>
+    <link rel="stylesheet" th:href="@{/css/variables.css}"/>
+    <link rel="stylesheet" th:href="@{/css/common.css}"/>
+    <link rel="stylesheet" th:href="@{/css/stylePanelControl.css}">
+    <link href="https://unpkg.com/leaflet/dist/leaflet.css" rel="stylesheet"/>
+    <!-- Toast System y Notificaciones -->
+    <div th:replace="~{fragments/header :: toast-resources}"></div>
+</head>
+<body>
+<!-- HEADER -->
+<div th:replace="~{fragments/header :: header}"></div>
+
+<!-- HERO -->
+<section class="hero">
+    <h1>Panel de Control</h1>
+
+    <!-- Sección Principal de Estadísticas -->
+    <h2>Resumen de Actividad</h2>
+    <div class="dashboard">
+        <!-- Estadísticas de Hechos -->
+        <div class="card card-hechos">
+            <span class="card-icon">📄</span>
+            <div class="card-content">
+                <div class="card-label">Hechos Cargados (Proxy)</div>
+                <strong class="card-value" th:text="${stats.hechosCargados ?: 0}">0</strong>
+            </div>
+        </div>
+        <div class="card card-hechos">
+            <span class="card-icon">📥</span>
+            <div class="card-content">
+                <div class="card-label">Hechos Importados (CSV)</div>
+                <strong class="card-value" th:text="${stats.hechosImportados ?: 0}">0</strong>
+            </div>
+        </div>
+        <div class="card card-hechos">
+            <span class="card-icon">➕</span>
+            <div class="card-content">
+                <div class="card-label">Hechos Creados</div>
+                <strong class="card-value" th:text="${stats.hechosCreados ?: 0}">0</strong>
+            </div>
+        </div>
+        <div class="card card-hechos">
+            <span class="card-icon">✏️</span>
+            <div class="card-content">
+                <div class="card-label">Hechos Modificados</div>
+                <strong class="card-value" th:text="${stats.hechosModificados ?: 0}">0</strong>
+            </div>
+        </div>
+
+        <!-- Estadísticas de Colecciones -->
+        <div class="card card-colecciones">
+            <span class="card-icon">📚</span>
+            <div class="card-content">
+                <div class="card-label">Colecciones Creadas</div>
+                <strong class="card-value" th:text="${stats.coleccionesCreadas ?: 0}">0</strong>
+            </div>
+        </div>
+        <div class="card card-colecciones">
+            <span class="card-icon">🔄</span>
+            <div class="card-content">
+                <div class="card-label">Colecciones Modificadas</div>
+                <strong class="card-value" th:text="${stats.coleccionesModificadas ?: 0}">0</strong>
+            </div>
+        </div>
+
+        <!-- Estadísticas de Fuentes -->
+        <div class="card card-fuentes">
+            <span class="card-icon">🔌</span>
+            <div class="card-content">
+                <div class="card-label">Fuentes Activas</div>
+                <strong class="card-value" th:text="${stats.fuentesActivas ?: 0}">0</strong>
+            </div>
+        </div>
+
+        <!-- Estadísticas de Solicitudes -->
+        <div class="card card-solicitudes">
+            <span class="card-icon">🗑️</span>
+            <div class="card-content">
+                <div class="card-label">Solicitudes Eliminación</div>
+                <strong class="card-value" th:text="${stats.solicitudesEliminacion ?: 0}">0</strong>
+            </div>
+        </div>
+        <div class="card card-solicitudes">
+            <span class="card-icon">➕</span>
+            <div class="card-content">
+                <div class="card-label">Solicitudes Creación</div>
+                <strong class="card-value" th:text="${stats.solicitudesCreacion ?: 0}">0</strong>
+            </div>
+        </div>
+        <div class="card card-solicitudes">
+            <span class="card-icon">✏️</span>
+            <div class="card-content">
+                <div class="card-label">Solicitudes Modificación</div>
+                <strong class="card-value" th:text="${stats.solicitudesModificacion ?: 0}">0</strong>
+            </div>
+        </div>
+        <div class="card card-solicitudes">
+            <span class="card-icon">✔️</span>
+            <div class="card-content">
+                <div class="card-label">Solicitudes Aceptadas</div>
+                <strong class="card-value" th:text="${stats.solicitudesAceptadas ?: 0}">0</strong>
+            </div>
+        </div>
+        <div class="card card-solicitudes">
+            <span class="card-icon">❌</span>
+            <div class="card-content">
+                <div class="card-label">Solicitudes Rechazadas</div>
+                <strong class="card-value" th:text="${stats.solicitudesRechazadas ?: 0}">0</strong>
+            </div>
+        </div>
+        <div class="card card-solicitudes">
+            <span class="card-icon">⏳</span>
+            <div class="card-content">
+                <div class="card-label">Solicitudes Pendientes</div>
+                <strong class="card-value" th:text="${stats.solicitudesPendientes ?: 0}">0</strong>
+            </div>
+        </div>
+        <div class="card card-solicitudes">
+            <span class="card-icon">🔄</span>
+            <div class="card-content">
+                <div class="card-label">Pendientes de Modificación</div>
+                <strong class="card-value" th:text="${stats.solicitudesPendientesModificacion ?: 0}">0</strong>
+            </div>
+        </div>
+
+        <!-- Card de Observabilidad (Solo Admin) -->
+        <div class="card card-observabilidad" onclick="abrirObservabilidad()"
+             style="cursor: pointer; transition: transform 0.3s ease, box-shadow 0.3s ease; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <span class="card-icon" style="font-size: 2.5em;">📊</span>
+            <div class="card-content">
+                <div class="card-label" style="color: white;">Dashboard de Observabilidad</div>
+                <strong class="card-value-text" style="font-size: 0.9em; color: #e0e0ff;">Monitoreo del Sistema</strong>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sección de Estadísticas Detalladas (del módulo de estadísticas) -->
+    <div class="estadisticas-detalladas" th:if="${stats.provinciaConMasHechos != null or stats.categoriaConMasHechos != null}">
+        <h2>Análisis Estadístico</h2>
+        <div class="dashboard dashboard-analisis">
+            <div class="card card-analisis" th:if="${stats.provinciaConMasHechos != null}">
+                <span class="card-icon">📍</span>
+                <div class="card-content">
+                    <div class="card-label">Provincia con más hechos</div>
+                    <strong class="card-value-text" th:text="${stats.provinciaConMasHechos}">-</strong>
+                </div>
+            </div>
+            <div class="card card-analisis" th:if="${stats.categoriaConMasHechos != null}">
+                <span class="card-icon">🏷️</span>
+                <div class="card-content">
+                    <div class="card-label">Categoría con más hechos</div>
+                    <strong class="card-value-text" th:text="${stats.categoriaConMasHechos}">-</strong>
+                </div>
+            </div>
+            <div class="card card-analisis" th:if="${stats.totalHechosPorProvincia != null}">
+                <span class="card-icon">🗺️</span>
+                <div class="card-content">
+                    <div class="card-label">Total Provincias con Hechos</div>
+                    <strong class="card-value" th:text="${stats.totalHechosPorProvincia}">0</strong>
+                </div>
+            </div>
+            <div class="card card-analisis" th:if="${stats.totalHechosPorCategoria != null}">
+                <span class="card-icon">📊</span>
+                <div class="card-content">
+                    <div class="card-label">Total Categorías con Hechos</div>
+                    <strong class="card-value" th:text="${stats.totalHechosPorCategoria}">0</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Nueva sección: Gestión de Fuentes -->
+    <div class="management-section">
+        <h2>Gestión de Fuentes</h2>
+
+        <!-- Botones de configuración de fuentes proxy -->
+        <div class="fuentes-proxy-config">
+            <h3>Configurar Fuentes Proxy</h3>
+            <p class="section-description">Configura fuentes proxy individuales para conectar con sistemas externos o recursivos. Estas fuentes se crean en el microservicio FuenteProxy.</p>
+            <div class="proxy-config-actions">
+                <button class="btn-primary" onclick="abrirModalProxyRecursiva()">
+                    <span class="btn-icon">🔄</span> Crear Proxy Recursiva (MetaMapa)
+                </button>
+                <button class="btn-primary" onclick="abrirModalProxyExterna()">
+                    <span class="btn-icon">🌐</span> Crear Proxy Externa (DesastreAPI)
+                </button>
+            </div>
+            <small class="form-hint" style="display: block; margin-top: 10px; color: #666;">
+                ℹ️ Nota: Las fuentes proxy se crean en el microservicio FuenteProxy. Al iniciar el microservicio se crea automáticamente una FuenteDesastres con las credenciales del application.properties.
+            </small>
+        </div>
+
+        <!-- Lista de fuentes configuradas -->
+        <div class="fuentes-configuradas">
+            <h3>Fuentes Configuradas</h3>
+            <div class="fuentes-list" id="fuentes-list">
+                <div class="fuente-item" th:each="fuente : ${fuentes}">
+                    <div class="fuente-info">
+                        <span class="fuente-tipo" th:text="${fuente.tipo}">ESTATICA</span>
+                        <span class="fuente-nombre" th:text="${fuente.nombre}">Fuente CSV 001</span>
+                        <span class="fuente-coleccion" th:text="'Colección: ' + ${fuente.coleccion}">Colección: Ambiental</span>
+                    </div>
+                    <div class="fuente-actions">
+                        <button class="btn-edit" th:onclick="'editarFuente(' + ${fuente.id} + ')'">Editar</button>
+                        <button class="btn-delete" th:onclick="'eliminarFuente(' + ${fuente.id} + ')'">Eliminar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="microservices-section">
+    <h3>Estado de Microservicios</h3>
+
+    <!-- FuenteEstatica -->
+    <div class="microservice-item">
+        <div class="microservice-info">
+            <span class="microservice-name">FuenteEstatica</span>
+            <span class="microservice-status"
+                  th:class="${microserviceStatus.fuenteEstaticaRunning} ? 'status-running' : 'status-stopped'"
+                  th:text="${microserviceStatus.fuenteEstaticaRunning} ? 'CORRIENDO' : 'DETENIDO'">
+                DETENIDO
+            </span>
+        </div>
+        <div class="microservice-actions">
+            <button class="btn-status" onclick="verificarEstado('fuenteestatica')">
+                Verificar Estado
+            </button>
+        </div>
+    </div>
+
+    <!-- FuenteDinamica -->
+    <div class="microservice-item">
+        <div class="microservice-info">
+            <span class="microservice-name">FuenteDinamica</span>
+            <span class="microservice-status"
+                  th:class="${microserviceStatus.fuenteDinamicaRunning} ? 'status-running' : 'status-stopped'"
+                  th:text="${microserviceStatus.fuenteDinamicaRunning} ? 'CORRIENDO' : 'DETENIDO'">
+                DETENIDO
+            </span>
+        </div>
+        <div class="microservice-actions">
+            <button class="btn-status" onclick="verificarEstado('fuentedinamica')">
+                Verificar Estado
+            </button>
+        </div>
+    </div>
+
+    <!-- FuenteProxy -->
+    <div class="microservice-item">
+        <div class="microservice-info">
+            <span class="microservice-name">FuenteProxy</span>
+            <span class="microservice-status"
+                  th:class="${microserviceStatus.fuenteProxyRunning} ? 'status-running' : 'status-stopped'"
+                  th:text="${microserviceStatus.fuenteProxyRunning} ? 'CORRIENDO' : 'DETENIDO'">
+            DETENIDO
+        </span>
+        </div>
+        <div class="microservice-actions">
+            <button class="btn-status" onclick="verificarEstado('fuenteproxy')">
+                Verificar Estado
+            </button>
+        </div>
+    </div>
+
+    <!-- Agregador -->
+    <div class="microservice-item">
+        <div class="microservice-info">
+            <span class="microservice-name">Agregador</span>
+            <span class="microservice-status"
+                  th:class="${microserviceStatus.agregadorRunning} ? 'status-running' : 'status-stopped'"
+                  th:text="${microserviceStatus.agregadorRunning} ? 'CORRIENDO' : 'DETENIDO'">
+            DETENIDO
+        </span>
+        </div>
+        <div class="microservice-actions">
+            <button class="btn-status" onclick="verificarEstado('agregador')">
+                Verificar Estado
+            </button>
+        </div>
+    </div>
+
+</div>
+
+<!-- Nueva sección: Levantar Fuentes en Agregador -->
+<div class="agregador-fuentes-section">
+    <h3>Registrar Módulos de Fuentes en Agregador</h3>
+    <p class="section-description">Registra los módulos de fuentes en el agregador para que pueda consumir datos de ellos. Los microservicios deben estar corriendo antes de registrarlos.</p>
+
+    <div class="fuentes-agregador-actions">
+        <button class="btn-primary" id="btn-levantar-estatica" onclick="levantarFuenteEstatica()">
+            <span class="btn-icon">📄</span> Registrar Módulo Estático
+        </button>
+        <button class="btn-primary" id="btn-levantar-dinamica" onclick="levantarFuenteDinamica()">
+            <span class="btn-icon">🔄</span> Registrar Módulo Dinámico
+        </button>
+        <button class="btn-primary" id="btn-levantar-proxy" onclick="levantarFuenteProxy()">
+            <span class="btn-icon">🌐</span> Registrar Módulo Proxy
+        </button>
+    </div>
+
+    <!-- Lista de fuentes levantadas -->
+    <div class="fuentes-levantadas-info">
+        <h4>Módulos Registrados en Agregador</h4>
+        <div id="fuentes-registradas-list" class="fuentes-registradas-list">
+            <!-- Se llenará dinámicamente -->
+        </div>
+    </div>
+
+</div>
+
+
+<!-- Modal para configurar fuentes -->
+<div class="modal" id="modal-configurar-fuentes">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Configurar Nueva Fuente</h2>
+            <span class="close" onclick="cerrarModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form enctype="multipart/form-data" id="form-configurar-fuente" method="POST"
+                  th:action="@{/panel/fuentes/configurar}">
+                <div class="form-group">
+                    <label for="tipo-fuente">Tipo de Fuente:</label>
+                    <select id="tipo-fuente" name="tipoFuente" required>
+                        <option value="">Seleccionar tipo...</option>
+                        <option value="ESTATICA">Fuente Estática (CSV)</option>
+                        <option value="DINAMICA">Fuente Dinámica (API)</option>
+                        <option value="PROXY">Fuente Proxy</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="nombre-fuente">Nombre de la Fuente:</label>
+                    <input id="nombre-fuente" name="nombreFuente" required type="text">
+                </div>
+
+                <div class="form-group">
+                    <label for="coleccion-id">Colección Asociada:</label>
+                    <select id="coleccion-id" name="coleccionId" required>
+                        <option value="">Seleccionar colección...</option>
+                        <option th:each="coleccion : ${colecciones}"
+                                th:text="${coleccion.nombre}"
+                                th:value="${coleccion.id}">Colección
+                        </option>
+                    </select>
+                </div>
+
+                <!-- Configuración específica para Fuente Estática -->
+                <div class="config-section" id="config-estatica" style="display: none;">
+                    <h4>Configuración Fuente Estática</h4>
+                    <div class="form-group">
+                        <label for="archivo-csv">Archivo CSV:</label>
+                        <input accept=".csv" id="archivo-csv" name="archivoCsv" type="file">
+                    </div>
+                </div>
+
+                <!-- Configuración específica para Fuente Dinámica -->
+                <div class="config-section" id="config-dinamica" style="display: none;">
+                    <h4>Configuración Fuente Dinámica</h4>
+                    <div class="form-group">
+                        <label for="url-api">URL de la API:</label>
+                        <input id="url-api" name="urlApi" type="url">
+                    </div>
+                    <div class="form-group">
+                        <label for="frecuencia">Frecuencia de Actualización (minutos):</label>
+                        <input id="frecuencia" min="1" name="frecuenciaActualizacion" type="number">
+                    </div>
+                </div>
+
+                <!-- Configuración específica para Fuente Proxy -->
+                <div class="config-section" id="config-proxy" style="display: none;">
+                    <h4>Configuración Fuente Proxy</h4>
+
+                    <div class="form-group">
+                        <label for="tipo-proxy">Tipo de Fuente Proxy:</label>
+                        <select id="tipo-proxy" name="tipoProxy">
+                            <option value="">Seleccionar tipo...</option>
+                            <option value="RECURSIVA">Proxy Recursiva (MetaMapa)</option>
+                            <option value="EXTERNA">Proxy Externa (API Desastres)</option>
+                        </select>
+                    </div>
+
+                    <!-- Configuración para Proxy Recursiva (MetaMapa) -->
+                    <div class="config-subsection" id="config-proxy-recursiva" style="display: none;">
+                        <h5>Configuración Proxy Recursiva</h5>
+                        <div class="form-group">
+                            <label for="url-metamapa">URL MetaMapa:</label>
+                            <input id="url-metamapa" name="urlMetamapa" type="url"
+                                   placeholder="http://localhost:8084">
+                            <small class="form-hint">URL del sistema MetaMapa a conectar</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="nombre-metamapa">Nombre de la Fuente:</label>
+                            <input id="nombre-metamapa" name="nombreMetamapa" type="text"
+                                   placeholder="MetaMapa Recursivo">
+                        </div>
+                    </div>
+
+                    <!-- Configuración para Proxy Externa (DesastreAPI) -->
+                    <div class="config-subsection" id="config-proxy-externa" style="display: none;">
+                        <h5>Configuración API Externa</h5>
+                        <div class="form-group">
+                            <label for="url-desastre-api">URL de la API:</label>
+                            <input id="url-desastre-api" name="urlDesastreApi" type="url"
+                                   placeholder="https://api.desastres.com">
+                            <small class="form-hint">URL base de la API externa</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="email-desastre-api">Email:</label>
+                            <input id="email-desastre-api" name="emailDesastreApi" type="email"
+                                   placeholder="usuario@ejemplo.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="password-desastre-api">Contraseña:</label>
+                            <input id="password-desastre-api" name="passwordDesastreApi" type="password">
+                        </div>
+                        <div class="form-group">
+                            <label for="nombre-desastre-api">Nombre de la Fuente:</label>
+                            <input id="nombre-desastre-api" name="nombreDesastreApi" type="text"
+                                   placeholder="API Desastres">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button class="btn-cancel" onclick="cerrarModal()" type="button">Cancelar</button>
+                    <button class="btn-primary" type="submit">Configurar Fuente</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Proxy Recursiva -->
+<div class="modal" id="modal-proxy-recursiva">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Configurar Proxy Recursiva (MetaMapa)</h2>
+            <span class="close" onclick="cerrarModalProxyRecursiva()">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="form-proxy-recursiva">
+                <div class="form-group">
+                    <label for="url-metamapa-modal">URL MetaMapa:</label>
+                    <input id="url-metamapa-modal" name="urlMetamapa" type="url" required
+                           placeholder="http://localhost:8084">
+                    <small class="form-hint">URL del sistema MetaMapa a conectar recursivamente</small>
+                </div>
+                <div class="form-group">
+                    <label for="nombre-metamapa-modal">Nombre de la Fuente:</label>
+                    <input id="nombre-metamapa-modal" name="nombreMetamapa" type="text" required
+                           placeholder="MetaMapa Región Sur">
+                </div>
+                <div class="form-actions">
+                    <button class="btn-cancel" onclick="cerrarModalProxyRecursiva()" type="button">Cancelar</button>
+                    <button class="btn-primary" type="submit">Crear Proxy Recursiva</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Proxy Externa -->
+<div class="modal" id="modal-proxy-externa">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Configurar Proxy Externa (DesastreAPI)</h2>
+            <span class="close" onclick="cerrarModalProxyExterna()">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="form-proxy-externa">
+                <div class="form-group">
+                    <label for="url-desastre-api-modal">URL de la API:</label>
+                    <input id="url-desastre-api-modal" name="urlDesastreApi" type="url" required
+                           placeholder="https://api.desastres.com">
+                    <small class="form-hint">URL base de la API externa de desastres</small>
+                </div>
+                <div class="form-group">
+                    <label for="email-desastre-api-modal">Email:</label>
+                    <input id="email-desastre-api-modal" name="emailDesastreApi" type="email" required
+                           placeholder="usuario@ejemplo.com">
+                </div>
+                <div class="form-group">
+                    <label for="password-desastre-api-modal">Contraseña:</label>
+                    <input id="password-desastre-api-modal" name="passwordDesastreApi" type="password" required>
+                </div>
+                <div class="form-group">
+                    <label for="nombre-desastre-api-modal">Nombre de la Fuente:</label>
+                    <input id="nombre-desastre-api-modal" name="nombreDesastreApi" type="text" required
+                           placeholder="API Desastres Nacional">
+                </div>
+                <div class="form-actions">
+                    <button class="btn-cancel" onclick="cerrarModalProxyExterna()" type="button">Cancelar</button>
+                    <button class="btn-primary" type="submit">Crear Proxy Externa</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Función para abrir el dashboard de observabilidad
+    function abrirObservabilidad() {
+        // Abrir en una nueva ventana maximizada
+        const width = screen.width;
+        const height = screen.height;
+        window.open(
+            'http://localhost:8083/api/observabilidad/dashboard-page',
+            'Observabilidad',
+            `width=${width},height=${height},left=0,top=0,toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes`
+        );
+    }
+
+    // Agregar efecto hover a la card de observabilidad
+    document.addEventListener('DOMContentLoaded', function() {
+        const observabilidadCard = document.querySelector('.card-observabilidad');
+        if (observabilidadCard) {
+            observabilidadCard.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-5px)';
+                this.style.boxShadow = '0 12px 24px rgba(102, 126, 234, 0.4)';
+            });
+            observabilidadCard.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = '';
+            });
+        }
+    });
+</script>
+
+<!-- FOOTER -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<!-- JS Auth -->
+<script th:src="@{/js/auth.js}"></script>
+<script th:src="@{/js/userMenu.js}"></script>
+<script th:src="@{/js/panelControl.js}"></script>
+</body>
+</html>

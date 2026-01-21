@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security6">
+<head>
+    <meta charset="UTF-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/logo.svg}">
+    <title>MetaMapa - Visualizar Hechos</title>
+    <link href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet"/>
+
+    <!-- Leaflet MarkerCluster CSS para clustering de marcadores -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+
+    <link rel="stylesheet" th:href="@{/css/variables.css}"/>
+    <link rel="stylesheet" th:href="@{/css/common.css}"/>
+    <link rel="stylesheet" th:href="@{/css/styleVisualizarHechos.css}"/>
+
+
+    <!-- Toast System y Notificaciones -->
+    <div th:replace="~{fragments/header :: toast-resources}"></div>
+</head>
+<body>
+
+<!-- Header -->
+<div th:replace="~{fragments/header :: header}"></div>
+
+<!-- POPUPS -->
+<div th:replace="~{fragments/header :: auth-popups}"></div>
+
+<!-- Sidebar izquierdo - Información de la Colección -->
+<div id="sidebar-info">
+    <h2>Información de la Colección</h2>
+
+    <div class="info-coleccion">
+        <h3 id="coleccion-titulo" th:text="${info != null ? info.titulo : 'Cargando...'}">Título de la colección</h3>
+        <p id="coleccion-descripcion" th:text="${info != null ? info.descripcion : 'Sin descripción'}">Descripción de la
+            colección</p>
+
+        <div class="info-detalle">
+            <p><strong>Handle:</strong> <span id="coleccion-handle"
+                                              th:text="${info != null ? info.handle : ''}">-</span></p>
+            <p><strong>Algoritmo:</strong> <span id="coleccion-algoritmo"
+                                                 th:text="${info != null ? info.algoritmoConsenso : ''}">-</span></p>
+            <p><strong>Fuentes:</strong> <span id="coleccion-fuentes"
+                                               th:text="${info != null and info.fuentes != null ? info.fuentes.size() : 0}">0</span>
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Sidebar derecho - Filtros -->
+<div id="sidebar-filtros">
+    <h2>Filtros</h2>
+    <!-- Filtros -->
+    <div class="filtro">
+        <label for="filtroCategoria">Categoría</label>
+        <input id="filtroCategoria" placeholder="Ej: Inundación, Incendio..." type="text"/>
+    </div>
+
+    <div class="filtro">
+        <label for="filtroTipoOrigen">Fuente (Tipo de Origen)</label>
+        <select id="filtroTipoOrigen">
+            <option value="">Todas las fuentes</option>
+            <option value="MANUAL">Manual</option>
+            <option value="DATASET">Dataset</option>
+            <option value="CONTRIBUYENTE">Contribuyente</option>
+            <option value="EXTERNO">Externo</option>
+        </select>
+    </div>
+
+    <div class="filtro">
+        <label>Fecha de carga</label>
+        <input id="fechaCargaInicio" type="datetime-local"/>
+        <input id="fechaCargaFin" type="datetime-local"/>
+    </div>
+
+    <div class="filtro">
+        <label>Fecha de ocurrencia</label>
+        <input id="fechaOcurrenciaInicio" type="date"/>
+        <input id="fechaOcurrenciaFin" type="date"/>
+    </div>
+
+    <div class="filtro">
+        <label>Ubicación (Radio en km)</label>
+        <div class="ubicacion-container">
+            <input id="filtroLatitud" placeholder="Latitud" step="any" type="number"/>
+            <input id="filtroLongitud" placeholder="Longitud" step="any" type="number"/>
+            <div class="ubicacion-button-row">
+                <input id="filtroRadio" placeholder="Radio (km)" step="0.1" type="number"/>
+                <button class="btn-seleccionar-ubicacion" id="btnSeleccionarUbicacion" type="button">Seleccionar en
+                    mapa
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="filtro">
+        <label>
+            <input id="navegacionCurada" type="checkbox"/>
+            Solo hechos curados
+        </label>
+    </div>
+
+    <div class="botones-filtros">
+        <button class="btn-secundario" id="btnLimpiarFiltros">Limpiar filtros</button>
+        <button class="btn-primario" id="btnAplicarFiltros">Aplicar filtros</button>
+    </div>
+</div>
+
+<!-- Flecha para abrir/cerrar sidebar de filtros -->
+<div aria-label="Abrir/Cerrar filtros" id="toggleSidebarFiltros" role="button">&lt;</div>
+
+<!-- Mensaje de no hay hechos -->
+<div class="mensaje-overlay hidden" id="mensajeNoHechos">
+    <div class="mensaje-contenido">
+        <h3>No se encontraron hechos</h3>
+        <p>No hay hechos que coincidan con los filtros aplicados.</p>
+        <p>Intenta ajustar los criterios de búsqueda.</p>
+    </div>
+</div>
+
+<div id="map"></div>
+
+<!-- Overlay para los popups -->
+<div class="popup-overlay" id="popupOverlay"></div>
+
+<!-- Popup de Hecho - Modal Completo -->
+<div class="popup hidden" id="popupHecho">
+    <button class="cerrarPopup" id="cerrarPopupHecho">✖</button>
+    <h2 id="popupTitulo">Título del Hecho</h2>
+
+    <div class="hecho-detalle-completo">
+        <div class="seccion-detalle">
+            <p><strong>Descripción:</strong></p>
+            <p id="popupDescripcion" class="hecho-descripcion-text">---</p>
+        </div>
+
+        <div class="seccion-detalle-inline">
+            <p><strong>Categoría:</strong> <span id="popupCategoria">---</span></p>
+            <p><strong>Ubicación:</strong> <span id="popupUbicacion">---</span></p>
+        </div>
+
+        <div class="seccion-detalle-inline">
+            <p><strong>Fecha del hecho:</strong> <span id="popupFechaHecho">---</span></p>
+            <p><strong>Fecha de carga:</strong> <span id="popupFechaCarga">---</span></p>
+        </div>
+
+        <div class="seccion-detalle-inline">
+            <p><strong>Fuente:</strong> <span id="popupFuente">---</span></p>
+            <p><strong>Origen:</strong> <span id="popupOrigen">---</span></p>
+        </div>
+
+        <div class="seccion-detalle">
+            <p><strong>Etiquetas:</strong> <span id="popupEtiquetas">---</span></p>
+        </div>
+
+        <div class="seccion-multimedia">
+            <p><strong>Contenido Multimedia:</strong></p>
+            <div id="popupMultimedia">---</div>
+        </div>
+    </div>
+</div>
+
+<!-- Popup de Eliminación - Solo visible para usuarios que NO son administradores -->
+<div class="popup hidden" id="popupEliminar" sec:authorize="!hasRole('ADMIN')">
+    <button class="cerrarPopup" id="cerrarPopupEliminar">✖</button>
+    <h2>Solicitar eliminación de hecho</h2>
+    <label for="justificacion">Justificación (mínimo 500 caracteres)</label>
+    <textarea id="justificacion" placeholder="Escriba aquí su justificación..."></textarea>
+    <p id="contadorPalabras">0 / 500 caracteres</p>
+    <button disabled id="btnConfirmarEliminacion">Confirmar eliminación</button>
+</div>
+
+<!-- FOOTER -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<!-- Leaflet MarkerCluster JS para clustering -->
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+
+<script th:src="@{/js/passwordToggle.js}"></script>
+<script th:src="@{/js/visualizarHechos.js}"></script>
+<script th:src="@{/js/auth.js}"></script>
+<script th:src="@{/js/userMenu.js}"></script>
+
+<!-- Datos del servidor para JavaScript -->
+<script th:inline="javascript">
+    window.hechos = /*[[${hechos}]]*/ [];
+    window.coleccionInfo = /*[[${info}]]*/ null;
+    window.coleccionHandle = /*[[${info != null ? info.handle : 'default'}]]*/ 'default';
+    // Variable para indicar si el usuario es administrador - se setea en falso por defecto
+    window.isAdmin = false;
+</script>
+
+<!-- Script condicional que solo se ejecuta si el usuario es administrador -->
+<script sec:authorize="hasRole('ADMIN')">
+    window.isAdmin = true;
+</script>
+
+<script>
+    // Inicializar el mapa cuando el DOM esté listo
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('[VisualizarHechos] Inicializando mapa...');
+        console.log('[VisualizarHechos] Hechos recibidos:', window.hechos ? window.hechos.length : 0);
+        console.log('[VisualizarHechos] Usuario es admin:', window.isAdmin);
+        initMap();
+    });
+</script>
+</body>
+</html>

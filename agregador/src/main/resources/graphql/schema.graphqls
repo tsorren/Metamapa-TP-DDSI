@@ -1,0 +1,245 @@
+# Schema GraphQL para el Servicio Agregador
+
+# Scalar personalizado para DateTime
+scalar DateTime
+scalar Date
+scalar Long
+
+# ============================================
+# QUERIES - Consultas de lectura
+# ============================================
+
+type Query {
+    # Obtener todos los hechos con filtros opcionales
+    hechos(
+        filtro: HechoFiltroInput
+        paginacion: PaginacionInput
+    ): HechoPaginado!
+
+    # Obtener un hecho por ID
+    hecho(id: ID!): Hecho
+
+    # Obtener todas las colecciones con filtros opcionales
+    colecciones(
+        filtro: ColeccionFiltroInput
+        paginacion: PaginacionInput
+    ): ColeccionPaginado!
+
+    # Obtener una coleccion por handle
+    coleccion(handle: String!): Coleccion
+
+    # Obtener hechos de una coleccion especifica
+    hechosPorColeccion(
+        handle: String!
+        filtro: HechoFiltroInput
+        paginacion: PaginacionInput
+    ): HechoPaginado!
+
+    # Buscar hechos por texto
+    buscarHechos(
+        texto: String!
+        paginacion: PaginacionInput
+    ): HechoPaginado!
+
+    # Obtener categorias disponibles
+    categorias: [Categoria!]!
+
+    # Obtener etiquetas disponibles
+    etiquetas: [Etiqueta!]!
+
+    # Obtener fuentes disponibles
+    fuentes: [Fuente!]!
+}
+
+# ============================================
+# TYPES - Tipos de datos principales
+# ============================================
+
+type Hecho {
+    id: ID!
+    identificadorExterno: Long!
+    fuente: Fuente!
+    titulo: String!
+    descripcion: String
+    categoria: Categoria
+    ubicacion: Ubicacion
+    fechaDelHecho: Date
+    fechaDeCarga: DateTime!
+    fechaUltimaModificacion: DateTime
+    contenido: Multimedia
+    origen: TipoOrigen!
+    etiquetas: [Etiqueta!]
+    visible: Boolean!
+}
+
+type Coleccion {
+    handle: String!
+    titulo: String!
+    descripcion: String
+    fuentes: [Fuente!]!
+    criterioDePertenencia: CriterioDePertenencia
+    algoritmoConsenso: TipoConsenso
+}
+
+type Fuente {
+    id: ID!
+    nombre: String!
+    descripcion: String
+    tipo: String
+}
+
+type Categoria {
+    id: ID!
+    nombre: String!
+    descripcion: String
+}
+
+type Etiqueta {
+    id: ID!
+    nombre: String!
+}
+
+type Ubicacion {
+    latitud: Float
+    longitud: Float
+    direccion: String
+    ciudad: String
+    provincia: String
+    pais: String
+}
+
+type Multimedia {
+    id: ID!
+    tipo: String!
+    url: String!
+}
+
+type CriterioDePertenencia {
+    id: ID!
+    nombre: String!
+    descripcion: String
+}
+
+# ============================================
+# ENUMS
+# ============================================
+
+enum TipoOrigen {
+    DINAMICO
+    ESTATICO
+    CONTRIBUTIVO
+}
+
+enum TipoConsenso {
+    MAYORIA_SIMPLE
+    UNANIMIDAD
+    PRIMERA_FUENTE
+}
+
+# ============================================
+# INPUT TYPES - Para filtros y busquedas
+# ============================================
+
+input HechoFiltroInput {
+    fuenteId: ID
+    categoriaId: ID
+    etiquetas: [String!]
+    fechaDesde: Date
+    fechaHasta: Date
+    origen: TipoOrigen
+    visible: Boolean
+    ciudad: String
+    provincia: String
+    pais: String
+}
+
+input ColeccionFiltroInput {
+    titulo: String
+    fuenteId: ID
+}
+
+input PaginacionInput {
+    pagina: Int = 0
+    tamanio: Int = 20
+}
+
+# ============================================
+# RESPONSE TYPES - Para paginacion
+# ============================================
+
+type HechoPaginado {
+    contenido: [Hecho!]!
+    paginaActual: Int!
+    totalPaginas: Int!
+    totalElementos: Long!
+    tamanio: Int!
+}
+
+type ColeccionPaginado {
+    contenido: [Coleccion!]!
+    paginaActual: Int!
+    totalPaginas: Int!
+    totalElementos: Long!
+    tamanio: Int!
+}
+
+# ============================================
+# MUTATIONS - Operaciones de escritura
+# ============================================
+
+type Mutation {
+    # Crear un nuevo hecho
+    crearHecho(input: HechoInput!): Hecho!
+
+    # Actualizar un hecho existente
+    actualizarHecho(id: ID!, input: HechoInput!): Hecho!
+
+    # Eliminar un hecho
+    eliminarHecho(id: ID!): Boolean!
+
+    # Crear una nueva coleccion
+    crearColeccion(input: ColeccionInput!): Coleccion!
+
+    # Actualizar una coleccion
+    actualizarColeccion(handle: String!, input: ColeccionInput!): Coleccion!
+
+    # Eliminar una coleccion
+    eliminarColeccion(handle: String!): Boolean!
+}
+
+input HechoInput {
+    identificadorExterno: Long!
+    fuenteId: ID!
+    titulo: String!
+    descripcion: String
+    categoriaId: ID
+    ubicacion: UbicacionInput
+    fechaDelHecho: Date
+    contenido: MultimediaInput
+    origen: TipoOrigen!
+    etiquetas: [String!]
+    visible: Boolean
+}
+
+input ColeccionInput {
+    titulo: String!
+    descripcion: String
+    fuentesIds: [ID!]!
+    criterioDePertenenciaId: ID
+    algoritmoConsenso: TipoConsenso
+}
+
+input UbicacionInput {
+    latitud: Float
+    longitud: Float
+    direccion: String
+    ciudad: String
+    provincia: String
+    pais: String
+}
+
+input MultimediaInput {
+    tipo: String!
+    url: String!
+}
+

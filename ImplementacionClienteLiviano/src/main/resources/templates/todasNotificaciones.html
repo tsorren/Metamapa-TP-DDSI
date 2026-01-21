@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/logo.svg}">
+    <title>MetaMapa - Notificaciones</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" th:href="@{/css/variables.css}"/>
+    <link rel="stylesheet" th:href="@{/css/common.css}"/>
+    <link rel="stylesheet" th:href="@{/css/notificaciones.css}"/>
+
+    <!-- Toast System y Notificaciones -->
+    <div th:replace="~{fragments/header :: toast-resources}"></div>
+
+    <style>
+        .notificaciones-page {
+            max-width: 900px;
+            margin: 100px auto 40px;
+            padding: 20px;
+        }
+
+        .notificaciones-page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        .notificaciones-page-header h1 {
+            margin: 0;
+            color: var(--text-color);
+            font-size: 2rem;
+        }
+
+        .notificaciones-filtros {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .filtro-btn {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filtro-btn:hover {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .filtro-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .notificaciones-page-lista {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .notificacion-item-page {
+            display: flex;
+            align-items: flex-start;
+            padding: 20px;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background-color 0.2s ease;
+            position: relative;
+        }
+
+        /* Eliminado: cursor pointer y hover ya que las notificaciones no son clickeables */
+
+        .notificacion-item-page.no-leida {
+            background-color: #f0f7ff;
+        }
+
+        .notificacion-icono-page {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .notificacion-icono-page.info {
+            background-color: #dbeafe;
+            color: #3b82f6;
+        }
+
+        .notificacion-icono-page.success {
+            background-color: #d1fae5;
+            color: #10b981;
+        }
+
+        .notificacion-icono-page.danger {
+            background-color: #fee2e2;
+            color: #ef4444;
+        }
+
+        .notificacion-icono-page.warning {
+            background-color: #fef3c7;
+            color: #f59e0b;
+        }
+
+        .notificacion-contenido-page {
+            flex: 1;
+        }
+
+        .notificacion-mensaje-page {
+            margin: 0 0 8px 0;
+            color: var(--text-color);
+            font-size: 0.95rem;
+        }
+
+        .notificacion-fecha-page {
+            color: #999;
+            font-size: 0.85rem;
+        }
+
+        .notificacion-acciones {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .marcar-leida-btn {
+            padding: 6px 12px;
+            background: none;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+
+        .marcar-leida-btn:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .empty-state-text {
+            font-size: 1.2rem;
+        }
+
+        .loading-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <!-- ====== HEADER ====== -->
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <!-- ====== POPUPS LOGIN/REGISTER ====== -->
+    <div th:replace="~{fragments/header :: auth-popups}"></div>
+
+    <!-- ====== CONTENIDO PRINCIPAL ====== -->
+    <div class="notificaciones-page">
+        <div class="notificaciones-page-header">
+            <h1>Mis Notificaciones</h1>
+            <button id="marcar-todas-leidas" class="filtro-btn">Marcar todas como leídas</button>
+        </div>
+
+        <div class="notificaciones-filtros">
+            <button class="filtro-btn active" data-filtro="todas">Todas</button>
+            <button class="filtro-btn" data-filtro="no-leidas">No leídas</button>
+            <button class="filtro-btn" data-filtro="leidas">Leídas</button>
+        </div>
+
+        <div class="notificaciones-page-lista" id="notificaciones-page-lista">
+            <div class="loading-state">Cargando notificaciones...</div>
+        </div>
+    </div>
+
+    <!-- JS de esta página -->
+    <script th:src="@{/js/passwordToggle.js}"></script>
+    <script th:src="@{/js/auth.js}"></script>
+    <script th:src="@{/js/notificaciones.js}"></script>
+    <script th:src="@{/js/userMenu.js}"></script>
+
+    <script>
+        let filtroActual = 'todas';
+
+        /**
+         * Formatea una fecha al formato legible español
+         */
+        function formatearFecha(fechaStr) {
+            if (!fechaStr) return 'Fecha desconocida';
+            try {
+                const fecha = new Date(fechaStr);
+                const ahora = new Date();
+                const diff = Math.floor((ahora - fecha) / 1000); // diferencia en segundos
+
+                // Si es de hoy
+                if (diff < 60) return 'Hace un momento';
+                if (diff < 3600) return `Hace ${Math.floor(diff / 60)} min`;
+                if (diff < 86400) return `Hace ${Math.floor(diff / 3600)} h`;
+                if (diff < 604800) return `Hace ${Math.floor(diff / 86400)} días`;
+
+                // Formato completo
+                const opciones = {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                };
+                return fecha.toLocaleDateString('es-ES', opciones);
+            } catch (error) {
+                console.error('Error al formatear fecha:', error);
+                return fechaStr;
+            }
+        }
+
+        /**
+         * Obtiene la clase de color según el tipo de notificación
+         */
+        function obtenerColorNotificacion(tipo) {
+            const colores = {
+                'SOLICITUD_PENDIENTE': 'warning',
+                'SOLICITUD_ACEPTADA': 'success',
+                'SOLICITUD_RECHAZADA': 'danger',
+                'SOLICITUD_PENDIENTE_MODIFICACION': 'info',
+                'CREACION': 'info',
+                'MODIFICACION': 'info',
+                'ELIMINACION': 'danger'
+            };
+            return colores[tipo] || 'info';
+        }
+
+        /**
+         * Escapa caracteres HTML para prevenir XSS
+         */
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function obtenerIconoSimple(tipo) {
+            const iconos = {
+                'SOLICITUD_PENDIENTE': '🔔',
+                'SOLICITUD_ACEPTADA': '✅',
+                'SOLICITUD_RECHAZADA': '❌',
+                'SOLICITUD_PENDIENTE_MODIFICACION': '✏️',
+                'CREACION': '📝',
+                'MODIFICACION': '✏️',
+                'ELIMINACION': '🗑️'
+            };
+            return iconos[tipo] || '🔔';
+        }
+
+        function crearNotificacionElement(notif) {
+            const fecha = formatearFecha(notif.fechaCreacion);
+            const colorClase = obtenerColorNotificacion(notif.tipoNotificacion);
+            const leidaClase = notif.leida ? '' : 'no-leida';
+
+            return `
+                <div class="notificacion-item-page ${leidaClase}"
+                     data-solicitud-id="${notif.solicitudId || ''}"
+                     data-tipo-solicitud="${notif.tipoSolicitud || ''}">
+                    <div class="notificacion-icono-page ${colorClase}">
+                        ${obtenerIconoSimple(notif.tipoNotificacion)}
+                    </div>
+                    <div class="notificacion-contenido-page">
+                        <p class="notificacion-mensaje-page">${escapeHtml(notif.mensaje)}</p>
+                        <span class="notificacion-fecha-page">${fecha}</span>
+                    </div>
+                    ${!notif.leida ? `
+                        <div class="notificacion-acciones">
+                            <button class="marcar-leida-btn"
+                                    data-id="${notif.id}"
+                                    data-tipo="${notif.tipoSolicitud || ''}">
+                                Marcar como leída
+                            </button>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('[Todas Notificaciones] Página cargada');
+            cargarTodasLasNotificaciones();
+
+            // Filtros
+            document.querySelectorAll('.filtro-btn[data-filtro]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    console.log('[Todas Notificaciones] Filtro cambiado a:', this.dataset.filtro);
+                    document.querySelectorAll('.filtro-btn[data-filtro]').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    filtroActual = this.dataset.filtro;
+                    cargarTodasLasNotificaciones();
+                });
+            });
+
+            // Marcar todas como leídas
+            document.getElementById('marcar-todas-leidas').addEventListener('click', marcarTodasComoLeidas);
+        });
+
+        async function cargarTodasLasNotificaciones() {
+            const container = document.getElementById('notificaciones-page-lista');
+            container.innerHTML = '<div class="loading-state">Cargando notificaciones...</div>';
+
+            try {
+                let url = '/notificaciones/todas-json';
+                if (filtroActual === 'no-leidas') {
+                    url = '/notificaciones/no-leidas';
+                } else if (filtroActual === 'leidas') {
+                    url = '/notificaciones/leidas';
+                }
+
+                console.log('[Todas Notificaciones] Cargando desde:', url);
+                const response = await fetch(url);
+
+                if (!response.ok) {
+                    throw new Error(`Error ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                const notificaciones = data.notificaciones || [];
+
+                console.log('[Todas Notificaciones] Notificaciones recibidas:', notificaciones.length);
+
+                if (notificaciones.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🔔</div>
+                            <div class="empty-state-text">No tienes notificaciones ${filtroActual === 'no-leidas' ? 'sin leer' : filtroActual === 'leidas' ? 'leídas' : ''}</div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = notificaciones.map(notif => crearNotificacionElement(notif)).join('');
+
+                // Event listeners
+                document.querySelectorAll('.marcar-leida-btn').forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const notifId = this.dataset.id;
+                        const tipoSolicitud = this.dataset.tipo;
+                        marcarComoLeidaPage(notifId, tipoSolicitud);
+                    });
+                });
+
+                // Eliminado: event listener de click en notificaciones para navegar
+
+            } catch (error) {
+                console.error('[Todas Notificaciones] Error:', error);
+                container.innerHTML = '<div class="empty-state"><div class="empty-state-text">Error al cargar notificaciones: ' + error.message + '</div></div>';
+                if (window.Toast) {
+                    Toast.error('Error al cargar notificaciones');
+                }
+            }
+        }
+
+
+        async function marcarComoLeidaPage(notifId, tipoSolicitud) {
+            try {
+                const response = await fetch(`/notificaciones/${notifId}/marcar-leida?tipoSolicitud=${tipoSolicitud}`, {
+                    method: 'PATCH'
+                });
+
+                if (response.ok) {
+                    if (window.Toast) {
+                        Toast.success('Notificación marcada como leída');
+                    }
+                    cargarTodasLasNotificaciones();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                if (window.Toast) {
+                    Toast.error('Error al marcar como leída');
+                }
+            }
+        }
+
+        async function marcarTodasComoLeidas() {
+            try {
+                const response = await fetch('/notificaciones/marcar-todas-leidas', {
+                    method: 'PATCH'
+                });
+
+                if (response.ok) {
+                    if (window.Toast) {
+                        Toast.success('Todas las notificaciones marcadas como leídas');
+                    }
+                    cargarTodasLasNotificaciones();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                if (window.Toast) {
+                    Toast.error('Error al marcar todas como leídas');
+                }
+            }
+        }
+
+        // Función eliminada: navegarASolicitud ya que las notificaciones no son clickeables
+    </script>
+</body>
+</html>
+

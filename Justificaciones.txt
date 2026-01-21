@@ -1,0 +1,99 @@
+Justificaciones de Diseño - Entrega 1:
+
+Clase FuenteEstatica:
+Para leer hechos de una fuente estatica implementamos esta clase que utiliza el patrón strategy en su lector.
+De esta manera podemos cargar archivos CSV y en un futuro soportaremos archivos de texto plano y de tipo JSON.
+
+
+Clase CriterioDePertenencia:
+Se infirio un criterio de pertenencia como una composición de condiciones (filtros) que deben cumplirse en conjunto.
+Es decir, una clase que mantiene una lista de filtros (Filtro) y delega en ellos la validación de los hechos.
+Lo que brinda mayor flexibilidad para armar criterios dinámicos y reutilizables.
+
+
+Clase Abstracta Filtro
+Se uso el patrón Strategy para encapsular distintos criterios de filtrado de hechos bajo una clase abstracta, permitiendo persistencia de datos.
+Esto permite una arquitectura extensible y desacoplada (se pueden agregar nuevos filtros), donde cada filtro representa una estrategia concreta de
+evaluación, como:
+ * FiltroCategoria: filtra hechos por su categoría.
+ * FiltroDescripcion: compara descripciones exactas.
+ * FiltroTitulo: busca coincidencias de título.
+ * FiltroFechaExacta y FiltroFechaEntre: permiten filtrado temporal preciso o por rangos.
+ * FiltorCargaEntre: permite filtrar segun la fecha de carga
+ * FiltroUbicacion: calcula si un hecho está dentro de un radio geográfico utilizando la formula de Haversine.
+ * FiltroOrigen: permite filtrado por creador y tipo de origen.
+ * FiltroTipoOrigen: filtra segun el tipo de origen (MANUAL, DATASET, CONTRIBUYENTE).
+ * FiltroMultimedia: filtra segun el tipo de contenido multimedia.
+	
+
+Contenido Multimedia:
+Un hecho puede no tener contenido multimedia asociado y en ese caso decidimos dejar el atributo en null.
+
+
+Enum TipoContenido:
+Los tipos de contenido son conocidos y finitos (texto, imagen, audio, video). El enum permite restringir las opciones
+posibles y centralizar la definición sin necesidad de múltiples clases.
+No se justifica una jerarquía de clases si no hay comportamiento asociado.
+
+
+Enum TipoOrigen:
+Los hechos tienen distintos orígenes: manual, dataset, contribuyente. Al igual que TipoContenido, los orígenes son
+valores constantes sin comportamiento, por lo que un enum es la mejor opción para evitar errores y facilitar validaciones.
+
+
+Jerarquía de usuarios: Visualizador, Contribuyente y Administrador
+Se necesitaba representar distintos tipos de usuarios del sistema, con distintas responsabilidades, pero compartiendo
+una base común de comportamiento (consultar colecciones y visualizar hechos).
+Por lo que se creo una clase BASE llamada Visualizador que contenga comportamiento común, y extenderla con
+Contribuyente y Administrador para especializar las funcionalidades según el rol.
+ * Visualizador
+   Es el rol más genérico que puede consultar colecciones, aplicar filtros, etc.
+   Al no persistir ningún dato suyo decidimos no crear una clase para el mismo.
+
+ * Contribuyente
+   Usuario activo en la carga de información.
+   Al subir un hecho puede almacenar sus datos en el origen contribuyente si lo desea.
+   Al crear una solicitud de eliminacion se guardan sus datos.
+   Los datos personales opcionales se asignan a null en su inicialización, permitiendo ser modificados más tarde.
+
+ * Administrador
+   Decidimos asignarle un identificador numérico a cada administrador para facilitar su persistencia e identificación
+   para tener mayor trazabilidad en los estados de cada solicitud de eliminación.
+
+
+Clase Categoria:
+La categoría se modela como clase. Evita errores por strings duplicados o mal escritos, permite validar, comparar,
+y extender el modelo fácilmente. Resolviendo problemas de consistencia de datos.
+
+
+Clase Ubicacion
+Decidimos encapsular la latitud y longitud dentro de una clase Ubicacion para abstraer y centralizar la lógica
+relacionada con posiciones geográficas. Aunque inicialmente no se detectaba comportamiento, al incorporar la fórmula
+de Haversine para calcular distancias entre ubicaciones, surgió una responsabilidad concreta y reutilizable.
+
+
+Enum EstadoAtencionSolicitud
+El ciclo de vida de una solicitud de eliminación tiene un conjunto finito definido (ENUM) de estados posibles:
+PENDIENTE, RECHAZADA, ACEPTADA.
+Este enfoque aporta: Legibilidad, Seguridad de tipo (evita errores de cadena) y Facilidad de mantenimiento.
+
+
+Clase SolicitudDeEliminacion
+La clase representa una acción formal solicitada por un contribuyente para eliminar un hecho, justificando su pedido.
+El diseño refleja una transición de estados controlada, encapsulada en métodos concretos, que mantiene la integridad
+del flujo de aprobación, evitando que estados inválidos se asignen desde fuera.
+
+
+Implementamos un proyecto multimodulo con los siguientes servicios: servicio agregador, servicio fuente estatica, servicio
+fuente dinamica, y servicio fuente proxy para delegar resposabilidades y evitar acoplamiento
+
+Al inicilizar el servicio de fuente proxy se instania la api de desastres naturales con identificador 1 , se logea, y al
+al momento de leer lo hace de manera paralela, para consultar todas las paginas, luego toda instancia con identificador diferente 
+se toma como fuente metamapa 
+
+En agregador manejamos los hecho con un id  interno y uno externo que nos permite guardar la referencia de donde provino
+Se implemento la clase modulo fuente que maneja la conexion con las api de los diferentes servicios, siguiendo todos le mismo protocolo 
+para enviar la informacion y recibirla. Al momento de cargar fuentes , se guardan todos los hechos pertenecientes a esta misma
+
+Solicitud de creacion posee una lista de estados por los que paso, para trazabilidad desde su creacion hasta el punto de no retorno 
+tanto Aceptada o Rechazada

@@ -1,0 +1,234 @@
+/* ====== IMPORTAR SISTEMA DE COLORES ====== */
+@import url('variables.css');
+
+/* ==================== NOTIFICACIONES ==================== */
+
+/* Contenedor de notificaciones - igual que .profile */
+.notifications {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-right: 15px;
+}
+
+/* Botón de campanita */
+.bell-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
+    border-radius: 50%;
+}
+
+.bell-btn:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.bell-icon {
+    width: 24px;
+    height: 24px;
+}
+
+/* Badge de contador - igual que en el menú de usuario */
+.notifications-badge {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background-color: var(--error-color);
+    color: white;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+/* Dropdown de notificaciones - IGUAL estructura que .user-menu */
+.notifications-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
+    min-width: 320px;
+    max-width: 400px;
+    z-index: 1000;
+    margin-top: 8px;
+    overflow: hidden;
+}
+
+.notifications.show .notifications-dropdown {
+    display: block;
+}
+
+/* Header del dropdown */
+.notifications-header {
+    padding: 12px 16px;
+    background: #f5f5f5;
+    border-bottom: 1px solid #e0e0e0;
+    font-weight: 600;
+    font-size: 14px;
+    color: #333;
+}
+
+/* Lista de notificaciones */
+.notifications-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+/* Item individual de notificación - similar a .menu-item */
+.notification-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 16px;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.2s ease;
+    /* Eliminado: cursor pointer - las notificaciones ya no son clickeables */
+}
+
+/* Eliminado: hover effect ya que las notificaciones no son clickeables */
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+/* Icono de notificación */
+.notification-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.notification-item.info .notification-icon {
+    background-color: rgba(13, 110, 253, 0.1);
+}
+
+.notification-item.success .notification-icon {
+    background-color: rgba(25, 135, 84, 0.1);
+}
+
+.notification-item.warning .notification-icon {
+    background-color: rgba(255, 193, 7, 0.1);
+}
+
+.notification-item.danger .notification-icon {
+    background-color: rgba(220, 53, 69, 0.1);
+}
+
+/* Contenido de notificación */
+.notification-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.notification-message {
+    margin: 0 0 4px 0;
+    font-size: 13px;
+    line-height: 1.4;
+    color: #333;
+    word-wrap: break-word;
+}
+
+.notification-time {
+    font-size: 11px;
+    color: #6c757d;
+}
+
+/* Botón marcar como leída */
+.notification-action {
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    color: #6c757d;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px;
+    transition: color 0.2s ease;
+}
+
+.notification-action:hover {
+    color: #198754;
+}
+
+/* Footer con botón "Ver todas" - igual que menu-item */
+.notifications-footer {
+    border-top: 1px solid #e0e0e0;
+}
+
+.notifications-footer a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 16px;
+    text-decoration: none;
+    color: #333;
+    transition: background-color 0.2s ease;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.notifications-footer a:hover {
+    background-color: #eee;
+}
+
+/* Estados de carga y vacío */
+.notification-item.loading,
+.notification-item.empty {
+    justify-content: center;
+    padding: 24px 16px;
+    text-align: center;
+    color: #6c757d;
+    cursor: default;
+}
+
+.notification-item.loading:hover,
+.notification-item.empty:hover {
+    background-color: white;
+}
+
+/* Scrollbar personalizado */
+.notifications-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.notifications-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.notifications-list::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+}
+
+.notifications-list::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .notifications-dropdown {
+        right: -10px;
+        min-width: 280px;
+        max-width: calc(100vw - 20px);
+    }
+}
+

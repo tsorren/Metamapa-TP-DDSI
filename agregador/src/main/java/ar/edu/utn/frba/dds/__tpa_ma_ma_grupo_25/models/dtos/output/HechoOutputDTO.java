@@ -1,0 +1,27 @@
+package ar.edu.utn.frba.dds.__tpa_ma_ma_grupo_25.models.dtos.output;
+
+import ar.edu.utn.frba.dds.__tpa_ma_ma_grupo_25.models.entidades.origenes.TipoOrigen;
+import lombok.Data;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+
+
+@Data
+public class HechoOutputDTO {
+  private final Long identificador;
+  private final Long identificadorExterno;
+  private final FuenteOutputDTO fuente;
+  private final String titulo;
+  private final String descripcion;
+  private final CategoriaOutputDTO categoria; // TODO: Pasar a categoríaId?
+  private final UbicacionOutputDTO ubicacion;
+  private final LocalDate fechaDelHecho;
+  private final LocalDateTime fechaDeCarga;
+  private final LocalDateTime fechaUltimaModificacion;
+  private final MultimediaOutputDTO contenido;
+  private final TipoOrigen origen; // TODO: Definir tipo de dato: Origen o TipoOrigen
+  private final List<EtiquetaOutputDTO> etiquetas;
+  private final Boolean visible;
+}
