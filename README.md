@@ -1,86 +1,102 @@
-# java-base-project
+# Metamapa – Distributed Geographical Data Aggregator
 
-Esta es una plantilla de proyecto diseñada para:
+Plataforma de agregación de datos geolocalizados basada en una arquitectura de **Microservicios**. Diseñada en Java 17 para unificar asíncronamente eventos ("hechos") desde fuentes estáticas, aportes dinámicos y consumo de APIs de terceros.
 
-* Java 17. :warning: Si bien el proyecto no lo limita explícitamente, el comando `mvn verify` no funcionará con
-  versiones más antiguas de Java.
-* JUnit 5. :warning: La versión 5 de JUnit es la más nueva del framework y presenta algunas diferencias respecto a la
-  versión "clásica" (JUnit 4). Para mayores detalles, ver:
-    * [Apunte de herramientas](https://docs.google.com/document/d/1VYBey56M0UU6C0689hAClAvF9ILE6E7nKIuOqrRJnWQ/edit#heading=h.dnwhvummp994)
-    * [Entrada de Blog (en inglés)](https://www.baeldung.com/junit-5-migration)
-    * [Entrada de Blog (en español)](https://www.paradigmadigital.com/dev/nos-espera-junit-5/)
-* Maven 3.8.1 o superior
+![Java](https://img.shields.io/badge/Java_17-ED8B00?style=for-the-badge&logo=java&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/Spring_Boot-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
+![Thymeleaf](https://img.shields.io/badge/Thymeleaf-%23005C0F.svg?style=for-the-badge&logo=Thymeleaf&logoColor=white)
 
-## Ejecutar tests
+## 📑 Índice
+- [El Problema y la Motivación](#problema)
+- [Tech Stack y Arquitectura](#tech-stack)
+- [Features Clave](#features)
+- [Calidad de Código y Delivery](#delivery)
+- [Aprendizajes Clave y Roadmap](#aprendizajes)
+- [Visuales, Diagramas y Documentación Anexa](#visuales)
+- [Instalación y Ejecución Local](#instalacion)
 
+<a name="problema"></a>
+## 🧠 El Problema y la Motivación
+
+Los sistemas modernos de mapas comunitarios o monitoreo de eventos (como rastreadores de desastres naturales) lidian con una ingesta de información sumamente fragmentada. Los datos pueden provenir de *datasets* gubernamentales (CSV/JSON), reportes manuales de usuarios en tiempo real, o integraciones B2B con otros sistemas.
+
+El desafío arquitectónico consistió en construir un sistema que consolide estas fuentes heterogéneas sin generar un monolito rígidamente acoplado. La solución fue desacoplar el sistema en microservicios independientes, orquestados mediante contenedores y gobernados por patrones de diseño sólidos que permiten inyectar nuevas estrategias de filtrado sin alterar la lógica de negocio central.
+
+<a name="tech-stack"></a>
+## 🏗️ Tech Stack y Arquitectura
+
+*   **Lenguaje y Framework:** Construido íntegramente en **Java 17**, estructurado como un proyecto Multimódulo de Maven, garantizando la separación estricta de dominios lógicos.
+*   **Core Backend (Stateless Microservices):** La solución se divide en nodos autónomos y sin estado (`Agregador` orquestador y `Fuentes` de ingesta). Al no guardar estado en memoria, la arquitectura garantiza escalabilidad horizontal nativa y alta tolerancia a fallos.
+*   **Capa de Presentación (Stateful Client):** Interfaz de usuario (Cliente Liviano) renderizada del lado del servidor (SSR) empleando **Thymeleaf**. Gestiona el estado de las sesiones activas mediante **Spring Security** y delega asíncronamente el procesamiento al backend stateless a través de `WebFlux` (WebClient).
+*   **Persistencia Distribuida:** Uso de bases de datos relacionales particionadas lógicamente (**MySQL**) inyectadas dinámicamente a través de variables de entorno de Spring Boot.
+*   **Infraestructura en Contenedores:** Todo el ciclo de vida de la red, los volúmenes de persistencia y el levantamiento concurrente de los servicios está definido declarativamente a través de **Docker Compose**.
+
+<a name="features"></a>
+## ⚡ Features Clave
+
+*   **Ingesta de Red Paralelizada:** El servicio `Fuente Proxy` implementa concurrencia y multithreading para consumir páginas de APIs REST de terceros (ej. "Desastres Naturales API") de forma simultánea, maximizando drásticamente el *throughput* de importación.
+*   **Patrones de Diseño Estructurales y de Comportamiento:** Uso extensivo del patrón *Strategy* para implementar lectores agnósticos (CSV, texto plano, JSON) y una evaluación dinámica de criterios de filtrado. Esto respeta el principio *Open/Closed*.
+*   **Geoprocesamiento Espacial Integrado:** Implementación matemática nativa de la *Fórmula de Haversine* para procesar consultas geoespaciales, filtrando hechos que ocurran estrictamente dentro de un radio en kilómetros de un punto específico (Lat/Long).
+*   **Cliente Liviano Interactivo y Seguro (Stateful):** Aplicación web (Server-Side Rendered) que consolida la vista geográfica, administra de forma segura la sesión del usuario (Stateful) e implementa un riguroso Control de Acceso Basado en Roles (RBAC jerárquico: Visualizador, Contribuyente, Administrador).
+*   **Máquina de Estados de Auditoría:** Un ciclo de vida inmutable aplicado al control de moderación (Aceptación/Rechazo de solicitudes de contribuyentes), garantizando trazabilidad total.
+
+<a name="delivery"></a>
+## 🚀 Calidad de Código y Delivery
+
+El proyecto aplica metodologías formales para asegurar un pipeline de Integración Continua (CI) altamente robusto:
+* **Testing Exahustivo:** La suite de pruebas de integración se basa en **JUnit 5**, verificando la correcta comunicación entre los módulos.
+* **Static Analysis:** El ciclo de validación de Maven (`mvn clean verify`) incluye de forma estricta revisiones automatizadas de formateo con **Checkstyle**, detección de *code smells* y medición de cobertura de código; asegurando que a producción sólo llegue código pulido y seguro.
+* **Tagging Semántico:** Integración de *Git Tags* ligados condicionalmente a validaciones de compilación exitosas.
+
+<a name="aprendizajes"></a>
+## 📈 Aprendizajes Clave y Roadmap
+
+*   **Desacoplamiento vs Latencia de Red:** Dividir la lógica en 5 servicios independientes solucionó el acoplamiento pero introdujo retos de comunicación asíncrona; lo cual requirió el diseño de *Healthchecks* estrictos y políticas de reconexión (*retries*) a nivel contenedor en Docker Compose.
+*   **Diseño Orientado al Dominio (DDD):** Encapsular variables primitivas dentro de *Value Objects* enriquecidos (por ejemplo, envolver coordenadas y lógicas de cálculo dentro de la clase `Ubicacion`) mejoró sustancialmente la cohesión interna frente a las validaciones aisladas.
+
+<a name="visuales"></a>
+## 🖼️ Visuales, Diagramas y Documentación Anexa
+
+<div align="center">
+  <h4>Diagrama de Despliegue (Infraestructura Cloud)</h4>
+  <img src="docs/exportados/DiagramaDespliegue.png" alt="Diagrama de Despliegue de Infraestructura" width="90%">
+  <br><br>
+  <h4>Arquitectura de Microservicios</h4>
+  <img src="docs/exportados/DiagramaDeArquitectura.png" alt="Diagrama de Arquitectura de Microservicios" width="90%">
+  <br><br>
+  <h4>Diagrama de Clases (Módulo Agregador)</h4>
+  <img src="docs/exportados/DiagramaClasesAgregador.png" alt="Diagrama de Clases del Agregador" width="90%">
+</div>
+
+### 📄 Documentación Anexa de Ingeniería
+* [**Justificaciones de Diseño (Justificaciones.txt)**](./Justificaciones.txt): Documento técnico profundo detallando el racional detrás de la elección de los patrones de diseño (Strategy), el modelado de jerarquías de usuarios y el manejo de los enums en el dominio.
+* [**Boceto de Prototipado (PDF)**](./docs/exportados/Boceto.pdf): Conceptualización visual original y mockups de experiencia de usuario.
+* El repositorio incluye una suite completa de diagramas adicionales (Casos de Uso, Clases modulares, despliegue físico) en la carpeta `docs/exportados/`.
+
+<a name="instalacion"></a>
+## ⚙️ Instalación y Ejecución Local
+
+Toda la infraestructura (Redes, Volúmenes y microservicios) está paquetizada para ser orquestada fácilmente.
+
+### Pre-requisitos
+* Java 17 SDK (Si se desea ejecutar validaciones por consola).
+* Docker y Docker Compose instalados.
+
+### Comandos de Ejecución
+
+```bash
+# 1. Clonar el repositorio
+git clone https://github.com/tsorren/Metamapa-TP-DDSI.git
+cd Metamapa-TP-DDSI
+
+# 2. Validar la calidad del código, checkstyle y ejecutar la suite de Tests
+# (Opcional, pero recomendado para comprobar sanidad)
+./mvnw clean verify
+
+# 3. Levantar la granja de microservicios e infraestructura
+docker-compose up --build -d
 ```
-mvn test
-```
 
-## Validar el proyecto de forma exahustiva
-
-```
-mvn clean verify
-```
-
-Este comando hará lo siguiente:
-
-1. Ejecutará los tests
-2. Validará las convenciones de formato mediante checkstyle
-3. Detectará la presencia de (ciertos) code smells
-4. Validará la cobertura del proyecto
-
-## Entrega del proyecto
-
-Para entregar el proyecto, crear un tag llamado `entrega-final`. Es importante que antes de realizarlo se corra la
-validación
-explicada en el punto anterior. Se recomienda hacerlo de la siguiente forma:
-
-```
-mvn clean verify && git tag entrega-final && git push origin HEAD --tags
-```
-
-## Configuración del IDE (IntelliJ)
-
-### Usar el SDK de Java 17
-
-1. En **File/Project Structure...**, ir a **Project Settings | Project**
-2. En **Project SDK** seleccionar la versión 17 y en **Project language level** seleccionar
-   `17 - Sealed types, always-strict floating-point semantics`
-
-![image](https://user-images.githubusercontent.com/39303639/228126065-221b9851-fb96-4f7f-a8e1-010732dc7ef6.png)
-
-### Usar fin de linea unix
-
-1. En **File/Settings...**, ir a **Editor | Code Style**.
-2. En la lista **Line separator**, seleccionar `Unix and OS X (\n)`.
-
-![image](https://user-images.githubusercontent.com/39303639/228126546-352289fa-8feb-4b39-99db-d8b860915fea.png)
-
-### Tabular con dos espacios
-
-1. En **File/Settings...**, ir a **Editor | Code Style | Java | Tabs and Indents**.
-2. Cambiar **Tab size**, **Indent** y **Continuation indent** a 2, 2 y 4 respectivamente:
-
-![image](https://user-images.githubusercontent.com/39303639/228127009-8c84ea72-969b-4e05-b311-45e3688a4164.png)
-
-### Ordenar los imports
-
-1. En **File/Settings...**, ir a **Editor | Code Style | Java | Imports**.
-2. Cambiar **Class count to use import with '*'** y **Names count to use static import with '*'** a un número muy alto (
-   ej: 99).
-3. En **Import Layout**, dejarlo como se muestra a continuación:
-    - `import static all other imports`
-    - `<blank line>`
-    - `import all other imports`
-
-![image](https://user-images.githubusercontent.com/39303639/228126787-36f9ecff-27f2-4b99-bf11-a6bd89f67087.png)
-
-### Instalar y configurar Checkstyle
-
-1. Instalar el plugin https://plugins.jetbrains.com/plugin/1065-checkstyle-idea:
-2. En **File/Settings...**, ir a **Tools | Checkstyle**.
-3. Configurarlo activando los Checks de Google y la versión de Checkstyle `== 9.0.1`:
-
-![image](https://github.com/dds-utn/java-base-project/assets/11719816/b1edc122-4675-4f8d-bffc-9e3d3366fac6)
-
+Los servicios se inicializarán y quedarán expuestos (tras superar sus *Healthchecks* internos) en los puertos `8080` a `8084`.
