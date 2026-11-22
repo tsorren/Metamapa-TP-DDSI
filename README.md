@@ -2,12 +2,6 @@
 
 Plataforma de agregación de datos geolocalizados basada en una arquitectura de **Microservicios**. Diseñada en Java 17 para unificar asíncronamente eventos ("hechos") desde fuentes estáticas, aportes dinámicos y consumo de APIs de terceros.
 
-![Java](https://img.shields.io/badge/Java_17-ED8B00?style=for-the-badge&logo=java&logoColor=white)
-![Spring Boot](https://img.shields.io/badge/Spring_Boot-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white)
-![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
-![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
-![Thymeleaf](https://img.shields.io/badge/Thymeleaf-%23005C0F.svg?style=for-the-badge&logo=Thymeleaf&logoColor=white)
-
 ## 📑 Índice
 - [El Problema y la Motivación](#problema)
 - [Tech Stack y Arquitectura](#tech-stack)
@@ -28,7 +22,7 @@ El desafío arquitectónico consistió en construir un sistema que consolide est
 ## 🏗️ Tech Stack y Arquitectura
 
 *   **Lenguaje y Framework:** Construido íntegramente en **Java 17**, estructurado como un proyecto Multimódulo de Maven, garantizando la separación estricta de dominios lógicos.
-*   **Core Backend (Stateless Microservices):** La solución se divide en nodos autónomos y sin estado (`Agregador` orquestador y `Fuentes` de ingesta). Al no guardar estado en memoria, la arquitectura garantiza escalabilidad horizontal nativa y alta tolerancia a fallos.
+*   **Core Backend (Stateless Microservices):** La solución se divide en nodos autónomos y sin estado (`Agregador` orquestador, `Estadísticas` y `Fuentes` de ingesta estática, dinámica y proxy). Al no guardar estado en memoria, la arquitectura garantiza escalabilidad horizontal nativa y alta tolerancia a fallos.
 *   **Capa de Presentación (Stateful Client):** Interfaz de usuario (Cliente Liviano) renderizada del lado del servidor (SSR) empleando **Thymeleaf**. Gestiona el estado de las sesiones activas mediante **Spring Security** y delega asíncronamente el procesamiento al backend stateless a través de `WebFlux` (WebClient).
 *   **Persistencia Distribuida:** Uso de bases de datos relacionales particionadas lógicamente (**MySQL**) inyectadas dinámicamente a través de variables de entorno de Spring Boot.
 *   **Infraestructura en Contenedores:** Todo el ciclo de vida de la red, los volúmenes de persistencia y el levantamiento concurrente de los servicios está definido declarativamente a través de **Docker Compose**.
@@ -39,16 +33,15 @@ El desafío arquitectónico consistió en construir un sistema que consolide est
 *   **Ingesta de Red Paralelizada:** El servicio `Fuente Proxy` implementa concurrencia y multithreading para consumir páginas de APIs REST de terceros (ej. "Desastres Naturales API") de forma simultánea, maximizando drásticamente el *throughput* de importación.
 *   **Patrones de Diseño Estructurales y de Comportamiento:** Uso extensivo del patrón *Strategy* para implementar lectores agnósticos (CSV, texto plano, JSON) y una evaluación dinámica de criterios de filtrado. Esto respeta el principio *Open/Closed*.
 *   **Geoprocesamiento Espacial Integrado:** Implementación matemática nativa de la *Fórmula de Haversine* para procesar consultas geoespaciales, filtrando hechos que ocurran estrictamente dentro de un radio en kilómetros de un punto específico (Lat/Long).
-*   **Cliente Liviano Interactivo y Seguro (Stateful):** Aplicación web (Server-Side Rendered) que consolida la vista geográfica, administra de forma segura la sesión del usuario (Stateful) e implementa un riguroso Control de Acceso Basado en Roles (RBAC jerárquico: Visualizador, Contribuyente, Administrador).
+*   **Cliente Liviano Interactivo y Seguro (Stateful):** Aplicación web (Server-Side Rendered) que consolida la vista geográfica, administra de forma segura la sesión del usuario (Stateful) e implementa un riguroso Control de Acceso Basado en Roles (RBAC con roles de Contribuyente y Administrador).
 *   **Máquina de Estados de Auditoría:** Un ciclo de vida inmutable aplicado al control de moderación (Aceptación/Rechazo de solicitudes de contribuyentes), garantizando trazabilidad total.
 
 <a name="delivery"></a>
 ## 🚀 Calidad de Código y Delivery
 
-El proyecto aplica metodologías formales para asegurar un pipeline de Integración Continua (CI) altamente robusto:
-* **Testing Exahustivo:** La suite de pruebas de integración se basa en **JUnit 5**, verificando la correcta comunicación entre los módulos.
-* **Static Analysis:** El ciclo de validación de Maven (`mvn clean verify`) incluye de forma estricta revisiones automatizadas de formateo con **Checkstyle**, detección de *code smells* y medición de cobertura de código; asegurando que a producción sólo llegue código pulido y seguro.
-* **Tagging Semántico:** Integración de *Git Tags* ligados condicionalmente a validaciones de compilación exitosas.
+Los servicios del backend se validan con Maven:
+* **Testing:** La suite de pruebas de integración se basa en **JUnit 5**, verificando la correcta comunicación entre los módulos.
+* **Static Analysis:** `mvn clean verify` ejecuta revisiones automatizadas de formateo con **Checkstyle**, análisis estático con **SpotBugs** y verificación de cobertura con **JaCoCo**.
 
 <a name="aprendizajes"></a>
 ## 📈 Aprendizajes Clave y Roadmap
