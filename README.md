@@ -39,9 +39,9 @@ El desafío arquitectónico consistió en construir un sistema que consolide est
 <a name="delivery"></a>
 ## 🚀 Calidad de Código y Delivery
 
-El ciclo de validación de Maven (`mvn clean verify`) aplica estas verificaciones:
+Los servicios del backend se validan con Maven:
 * **Testing:** La suite de pruebas de integración se basa en **JUnit 5**, verificando la correcta comunicación entre los módulos.
-* **Static Analysis:** El ciclo de validación de Maven (`mvn clean verify`) ejecuta revisiones automatizadas de formateo con **Checkstyle**, análisis estático con **SpotBugs** y verificación de cobertura con **JaCoCo**.
+* **Static Analysis:** `mvn clean verify` ejecuta revisiones automatizadas de formateo con **Checkstyle**, análisis estático con **SpotBugs** y verificación de cobertura con **JaCoCo**.
 
 <a name="aprendizajes"></a>
 ## 📈 Aprendizajes Clave y Roadmap
